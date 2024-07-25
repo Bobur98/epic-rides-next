@@ -6,81 +6,177 @@ import ProductBigCard from '../../libs/components/common/ProductBigCard';
 import ReviewCard from '../../libs/components/agent/ReviewCard';
 import { Box, Button, Pagination, Stack, Typography } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
-import { useReactiveVar } from '@apollo/client';
-import { useRouter } from 'next/router';
-import { Product } from '../../libs/types/product/product';
-import { Member } from '../../libs/types/member/member';
-import { sweetErrorHandling } from '../../libs/sweetAlert';
-import { userVar } from '../../apollo/store';
-import { ProductsInquiry } from '../../libs/types/product/product.input';
-import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
-import { Comment } from '../../libs/types/comment/comment';
-import { CommentGroup } from '../../libs/enums/comment.enum';
-import { REACT_APP_API_URL } from '../../libs/config';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client'
+import { useRouter } from 'next/router'
+import { Product } from '../../libs/types/product/product'
+import { Member } from '../../libs/types/member/member'
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert'
+import { userVar } from '../../apollo/store'
+import { ProductsInquiry } from '../../libs/types/product/product.input'
+import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input'
+import { Comment } from '../../libs/types/comment/comment'
+import { CommentGroup } from '../../libs/enums/comment.enum'
+import { Messages, REACT_APP_API_URL } from '../../libs/config'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { CREATE_COMMENT, LIKE_TARGET_PRODUCT } from '../../apollo/user/mutation'
+import { GET_MEMBER, GET_PRODUCTS } from '../../apollo/user/query'
+import { T } from '../../libs/types/common'
+import { GET_COMMENTS } from '../../apollo/admin/query'
+import { Message } from '../../libs/enums/common.enum'
+import ProductCard from '../../libs/components/product/ProductCard'
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),
 	},
-});
+})
 
 const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) => {
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const user = useReactiveVar(userVar);
-	const [mbId, setMbId] = useState<string | null>(null);
-	const [agent, setAgent] = useState<Member | null>(null);
-	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(initialInput);
-	const [agentProducts, setAgentProducts] = useState<Product[]>([]);
-	const [productTotal, setProductTotal] = useState<number>(0);
-	const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(initialComment);
-	const [agentComments, setAgentComments] = useState<Comment[]>([]);
-	const [commentTotal, setCommentTotal] = useState<number>(0);
+	const device = useDeviceDetect()
+	const router = useRouter()
+	const user = useReactiveVar(userVar)
+	const [mbId, setMbId] = useState<string | null>(null)
+	const [agent, setAgent] = useState<Member | null>(null)
+	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(initialInput)
+	const [agentProducts, setAgentProducts] = useState<Product[]>([])
+	const [productTotal, setProductTotal] = useState<number>(0)
+	const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(initialComment)
+	const [agentComments, setAgentComments] = useState<Comment[]>([])
+	const [commentTotal, setCommentTotal] = useState<number>(0)
 	const [insertCommentData, setInsertCommentData] = useState<CommentInput>({
 		commentGroup: CommentGroup.MEMBER,
 		commentContent: '',
 		commentRefId: '',
-	});
+	})
 
 	/** APOLLO REQUESTS **/
+	const [createComment] = useMutation(CREATE_COMMENT)
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT)
+
+	const {
+		loading: getMemberLoading,
+		data: getMemberData,
+		error: getMemberError,
+		refetch: getMemberRefetch,
+	} = useQuery(GET_MEMBER, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: mbId },
+		skip: !mbId,
+		onCompleted: (data: T) => {
+			setAgent(data?.getMember)
+			setSearchFilter({
+				...searchFilter,
+				search: {
+					memberId: data?.getMember?._id,
+				},
+			})
+			setCommentInquiry({
+				...commentInquiry,
+				search: {
+					commentRefId: data?.getMember?._id,
+				},
+			})
+			setInsertCommentData({
+				...insertCommentData,
+				commentRefId: data?.getMember?._id,
+			})
+		},
+	})
+
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: searchFilter },
+		skip: !searchFilter?.search?.memberId,
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setAgentProducts(data?.getProducts?.list)
+			setProductTotal(data?.getProducts?.metaCounter[0]?.total ?? 0)
+		},
+	})
+
+	const {
+		loading: getCommentLoading,
+		data: getCommentData,
+		error: getCommentError,
+		refetch: getCommentRefetch,
+	} = useQuery(GET_COMMENTS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: commentInquiry },
+		skip: !commentInquiry.search.commentRefId,
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setAgentComments(data?.getComments?.list)
+			setCommentTotal(data?.getComments?.metaCounter[0]?.total ?? 0)
+		},
+	})
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (router.query.agentId) setMbId(router.query.agentId as string);
-	}, [router]);
+		if (router.query.agentId) setMbId(router.query.agentId as string)
+	}, [router])
 
-	useEffect(() => {}, [searchFilter]);
-	useEffect(() => {}, [commentInquiry]);
+	useEffect(() => {}, [searchFilter])
+	useEffect(() => {}, [commentInquiry])
 
 	/** HANDLERS **/
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
-			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
+			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`)
+			else await router.push(`/member?memberId=${memberId}`)
 		} catch (error) {
-			await sweetErrorHandling(error);
+			await sweetErrorHandling(error)
 		}
-	};
+	}
 
 	const productPaginationChangeHandler = async (event: ChangeEvent<unknown>, value: number) => {
-		searchFilter.page = value;
-		setSearchFilter({ ...searchFilter });
-	};
+		searchFilter.page = value
+		setSearchFilter({ ...searchFilter })
+	}
 
 	const commentPaginationChangeHandler = async (event: ChangeEvent<unknown>, value: number) => {
-		commentInquiry.page = value;
-		setCommentInquiry({ ...commentInquiry });
-	};
+		commentInquiry.page = value
+		setCommentInquiry({ ...commentInquiry })
+	}
 
 	const createCommentHandler = async () => {
 		try {
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	};
+			if (!user._id) throw new Error(Messages.error2)
+			if (user._id === mbId) throw new Error('Cannot write a review for yourself')
 
+			await createComment({
+				variables: {
+					input: insertCommentData,
+				},
+			})
+
+			setInsertCommentData({ ...insertCommentData, commentContent: '' })
+			await getCommentRefetch({ input: commentInquiry })
+		} catch (err: any) {
+			sweetErrorHandling(err).then()
+		}
+	}
+	const likeProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED)
+
+			// execute likeTargetProduct Mutation
+			await likeTargetProduct({
+				variables: { input: id },
+			})
+			await getProductsRefetch({ input: initialInput })
+			await sweetTopSmallSuccessAlert('success', 800)
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
+		}
+	}
 	if (device === 'mobile') {
-		return <div>AGENT DETAIL PAGE MOBILE</div>;
+		return <div>AGENT DETAIL PAGE MOBILE</div>
 	} else {
 		return (
 			<Stack className={'agent-detail-page'}>
@@ -103,9 +199,9 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 							{agentProducts.map((product: Product) => {
 								return (
 									<div className={'wrap-main'} key={product?._id}>
-										<ProductBigCard product={product} key={product?._id} />
+										<ProductCard product={product} key={product?._id} likeProductHandler={likeProductHandler} />
 									</div>
-								);
+								)
 							})}
 						</Stack>
 						<Stack className={'pagination'}>
@@ -146,7 +242,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 									</span>
 								</Box>
 								{agentComments?.map((comment: Comment) => {
-									return <ReviewCard comment={comment} key={comment?._id} />;
+									return <ReviewCard comment={comment} key={comment?._id} />
 								})}
 								<Box component={'div'} className={'pagination-box'}>
 									<Pagination
@@ -165,7 +261,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 							<Typography className={'review-title'}>Review</Typography>
 							<textarea
 								onChange={({ target: { value } }: any) => {
-									setInsertCommentData({ ...insertCommentData, commentContent: value });
+									setInsertCommentData({ ...insertCommentData, commentContent: value })
 								}}
 								value={insertCommentData.commentContent}
 							></textarea>
@@ -195,9 +291,9 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};
+}
 
 AgentDetail.defaultProps = {
 	initialInput: {

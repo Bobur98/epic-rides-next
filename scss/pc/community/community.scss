@@ -24,10 +24,12 @@
 						flex-direction: row;
 						gap: 11px;
 						img {
-							width: 80px;
+							width: max-content;
 							height: 80px;
-							border-radius: 50%;
+							// border-radius: 50%;
 							object-fit: cover;
+							filter: invert(15%) sepia(77%) saturate(7474%) hue-rotate(-15deg) brightness(76%) contrast(107%);
+
 						}
 						.community-name {
 							.name {
@@ -64,7 +66,7 @@
 						padding: 0;
 						justify-content: center;
 						align-items: center;
-						background-color: #000000;
+						background-color: #d31a1a;
 						color: #ffffff;
 						border-radius: 6px;
 						margin-bottom: 10px;
@@ -115,7 +117,7 @@
 								width: 91px;
 								height: 32px;
 								border-radius: 4px;
-								background: #eb6753;
+								background: #d31a1a;
 								color: #fff;
 								font-family: $font;
 								font-size: 13px;

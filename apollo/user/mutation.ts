@@ -161,9 +161,41 @@ export const CREATE_PRODUCT = gql`
 			deletedAt
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberArticles
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				createdAt
+				updatedAt
+				deletedAt
+				accessToken
+			}
+			productEngineCc
 		}
 	}
-`;
+`
 
 export const UPDATE_PRODUCT = gql`
 	mutation UpdateProduct($input: ProductUpdateDto!) {
@@ -174,6 +206,7 @@ export const UPDATE_PRODUCT = gql`
 			productYear
 			productType
 			productEngine
+			productEngineCc
 			productPower
 			productTorque
 			productWeight
@@ -196,7 +229,7 @@ export const UPDATE_PRODUCT = gql`
 			updatedAt
 		}
 	}
-`;
+`
 
 export const LIKE_TARGET_PRODUCT = gql`
 	mutation LikeTargetProduct($input: String!) {
@@ -207,6 +240,7 @@ export const LIKE_TARGET_PRODUCT = gql`
 			productYear
 			productType
 			productEngine
+			productEngineCc
 			productPower
 			productTorque
 			productWeight
@@ -229,7 +263,7 @@ export const LIKE_TARGET_PRODUCT = gql`
 			updatedAt
 		}
 	}
-`;
+`
 
 /**************************
  *      BOARD-ARTICLE     *
@@ -252,7 +286,7 @@ export const CREATE_BOARD_ARTICLE = gql`
 			updatedAt
 		}
 	}
-`;
+`
 
 export const UPDATE_BOARD_ARTICLE = gql`
 	mutation UpdateBoardArticle($input: BoardArticleUpdateDto!) {
@@ -271,7 +305,7 @@ export const UPDATE_BOARD_ARTICLE = gql`
 			updatedAt
 		}
 	}
-`;
+`
 
 export const LIKE_TARGET_BOARD_ARTICLE = gql`
 	mutation LikeTargetBoardArticle($input: String!) {
@@ -293,9 +327,45 @@ export const LIKE_TARGET_BOARD_ARTICLE = gql`
 				likeRefId
 				myFavorite
 			}
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberArticles
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				createdAt
+				updatedAt
+				deletedAt
+				accessToken
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
+				meFollowed {
+					followingId
+					followerId
+					myFollowing
+				}
+			}
 		}
 	}
-`;
+`
 
 /**************************
  *         COMMENT        *

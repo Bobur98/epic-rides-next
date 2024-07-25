@@ -9,122 +9,99 @@ import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
+import Link from 'next/link'
 
 interface TrendProductCardProps {
-	product: Product;
+	product: Product
+	likeProductHandler: any
 }
 
 const TrendProductCard = (props: TrendProductCardProps) => {
-	const { product } = props;
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const user = useReactiveVar(userVar);
+	const { product, likeProductHandler } = props
+	const device = useDeviceDetect()
+	const router = useRouter()
+	const user = useReactiveVar(userVar)
 
 	/** HANDLERS **/
 
 	if (device === 'mobile') {
 		return (
-			<Stack className="trend-card-box" key={product._id}>
-				<Box
-					component={'div'}
-					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${product?.productImages[0]})` }}
-				>
-					<div>${product.productPrice}</div>
-				</Box>
-				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{product.productTitle}</strong>
-					<p className={'desc'}>{product.productDesc ?? 'no description'}</p>
-					<div className={'options'}>
-						<div>
-							<img src="/img/icons/bed.svg" alt="" />
-							<span>{product.productBeds} bed</span>
-						</div>
-						<div>
-							<img src="/img/icons/room.svg" alt="" />
-							<span>{product.productRooms} rooms</span>
-						</div>
-						<div>
-							<img src="/img/icons/expand.svg" alt="" />
-							<span>{product.productSquare} m2</span>
-						</div>
-					</div>
-					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<p>
-							{product.productRent ? 'Rent' : ''} {product.productRent && product.productBarter && '/'}{' '}
-							{product.productBarter ? 'Barter' : ''}
-						</p>
-						<div className="view-like-box">
-							<IconButton color={'default'}>
-								<RemoveRedEyeIcon />
-							</IconButton>
-							<Typography className="view-cnt">{product?.productViews}</Typography>
-							<IconButton color={'default'}>
-								{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
-									<FavoriteIcon style={{ color: 'red' }} />
-								) : (
-									<FavoriteIcon />
-								)}
-							</IconButton>
-							<Typography className="view-cnt">{product?.productLikes}</Typography>
-						</div>
-					</div>
-				</Box>
+			<Stack className="product" key={product._id}>
+				<span className="product-price">${product.productPrice}</span>
+				<Link href={'/product'}>
+					<img className="product-image" src={`${process.env.REACT_APP_API_URL}/${product?.productImages[0]}`} />
+					<h1 className="product-title">
+						{product.productBrand} {product.productModel}
+					</h1>
+				</Link>
+				<hr />
+				<p className="product-desc">{product.productDesc ?? 'No Description'}</p>
+
+				<Stack className="view-like-box">
+					<Box className="view-wrapper">
+						<IconButton color={'default'}>
+							<RemoveRedEyeIcon />
+						</IconButton>
+						<Typography className="view-cnt">{product?.productViews}</Typography>
+					</Box>
+
+					<IconButton color={'default'} onClick={() => likeProductHandler(user, product?._id)}>
+						{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
+							<FavoriteIcon style={{ color: 'red' }} />
+						) : (
+							<FavoriteIcon />
+						)}
+					</IconButton>
+					<Typography className="view-cnt">{product?.productLikes}</Typography>
+				</Stack>
+				<Link href="#" className="product__btn btn">
+					Buy Now
+				</Link>
 			</Stack>
-		);
+		)
 	} else {
 		return (
-			<Stack className="trend-card-box" key={product._id}>
-				<Box
-					component={'div'}
-					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${product?.productImages[0]})` }}
+			<Stack className="product" key={product._id}>
+				<span className="product-price">${product.productPrice}</span>
+				<Link
+					href={{
+						pathname: '/product/detail',
+						query: { id: product?._id },
+					}}
 				>
-					<div>${product.productPrice}</div>
-				</Box>
-				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{product.productTitle}</strong>
-					<p className={'desc'}>{product.productDesc ?? 'no description'}</p>
-					<div className={'options'}>
-						<div>
-							<img src="/img/icons/bed.svg" alt="" />
-							<span>{product.productBeds} bed</span>
-						</div>
-						<div>
-							<img src="/img/icons/room.svg" alt="" />
-							<span>{product.productRooms} rooms</span>
-						</div>
-						<div>
-							<img src="/img/icons/expand.svg" alt="" />
-							<span>{product.productSquare} m2</span>
-						</div>
-					</div>
-					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<p>
-							{product.productRent ? 'Rent' : ''} {product.productRent && product.productBarter && '/'}{' '}
-							{product.productBarter ? 'Barter' : ''}
-						</p>
-						<div className="view-like-box">
-							<IconButton color={'default'}>
-								<RemoveRedEyeIcon />
-							</IconButton>
-							<Typography className="view-cnt">{product?.productViews}</Typography>
-							<IconButton color={'default'}>
-								{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
-									<FavoriteIcon style={{ color: 'red' }} />
-								) : (
-									<FavoriteIcon />
-								)}
-							</IconButton>
-							<Typography className="view-cnt">{product?.productLikes}</Typography>
-						</div>
-					</div>
-				</Box>
+					<img className="product-image" src={`${process.env.REACT_APP_API_URL}/${product?.productImages[0]}`} />
+				</Link>
+				<h1 className="product-title">
+					{product.productBrand} {product.productModel}
+				</h1>
+				<hr />
+				<p className="product-desc">{product.productDesc ?? 'No Description'}</p>
+
+				<Stack className="view-like-box">
+					<Box className="view-wrapper">
+						<IconButton color={'default'}>
+							<RemoveRedEyeIcon />
+						</IconButton>
+						<Typography className="view-cnt">{product?.productViews}</Typography>
+					</Box>
+
+					<IconButton color={'default'} onClick={() => likeProductHandler(user, product?._id)}>
+						{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
+							<FavoriteIcon style={{ color: 'red' }} />
+						) : (
+							<FavoriteIcon />
+						)}
+					</IconButton>
+					<Typography className="view-cnt">{product?.productLikes}</Typography>
+				</Stack>
+				<Link href="#" className="product__btn btn">
+					Buy Now
+				</Link>
 			</Stack>
-		);
+		)
 	}
-};
+}
+
+//https://codepen.io/haniotis/pen/aNvMyW
 
 export default TrendProductCard;

@@ -53,6 +53,53 @@
 			line-height: normal;
 		}
 	}
+	.bottom {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		.type {
+			display: flex;
+			flex-direction: row;
+			gap: 10px;
+		}
+		.disabled-type {
+			color: rgba(143, 143, 143, 0.54);
+			font-family: $font;
+			font-style: normal;
+			line-height: normal;
+		}
+		p {
+			color: #181a20;
+			font-family: $font;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			text-transform: capitalize;
+		}
+		button {
+			margin-left: 7px;
+			width: 16px;
+			height: 16px;
+			box-sizing: border-box;
+		}
+		.view-like-box {
+			display: flex;
+			flex-direction: row;
+			gap: 7px;
+			align-items: center;
+			.view-cnt {
+				color: #717171;
+				font-family: $font;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-overflow: ellipsis;
+			}
+		}
+	}
 	.info {
 		padding: 20px 22px 17px;
 		display: flex;
@@ -163,6 +210,7 @@
 	margin-bottom: 34px;
 	display: flex;
 	flex-direction: column;
+	height: max-content;
 	.agent-img {
 		border-radius: 12px;
 		width: 233px;

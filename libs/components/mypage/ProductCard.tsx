@@ -51,7 +51,7 @@ export const ProductCard = (props: ProductCardProps) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>MOBILE PRODUCT CARD</div>;
+		return <div>MOBILE PRODUCT CARD</div>
 	} else
 		return (
 			<Stack className="product-card-box">
@@ -59,10 +59,10 @@ export const ProductCard = (props: ProductCardProps) => {
 					<img src={`${process.env.REACT_APP_API_URL}/${product.productImages[0]}`} alt="" />
 				</Stack>
 				<Stack className="information-box" onClick={() => pushProductDetail(product?._id)}>
-					<Typography className="name">{product.productTitle}</Typography>
+					<Typography className="name">{product.productBrand}</Typography>
 					<Typography className="address">{product.productAddress}</Typography>
 					<Typography className="price">
-						<strong>${formatterStr(product?.productPrice)}</strong>/ mo
+						<strong>${formatterStr(product?.productPrice)}</strong>
 					</Typography>
 				</Stack>
 				<Stack className="date-box">
@@ -103,8 +103,8 @@ export const ProductCard = (props: ProductCardProps) => {
 								<MenuItem
 									disableRipple
 									onClick={() => {
-										handleClose();
-										updateProductHandler(ProductStatus.SOLD, product?._id);
+										handleClose()
+										updateProductHandler(ProductStatus.SOLD, product?._id)
 									}}
 								>
 									Sold
@@ -128,5 +128,5 @@ export const ProductCard = (props: ProductCardProps) => {
 					</Stack>
 				)}
 			</Stack>
-		);
+		)
 };

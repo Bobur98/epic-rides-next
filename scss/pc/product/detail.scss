@@ -83,6 +83,7 @@
 								height: auto;
 								flex-direction: row;
 								gap: 8px;
+								align-items: center;
 								p {
 									color: #181a20;
 									font-family: $font;
@@ -303,6 +304,7 @@
 											font-style: normal;
 											font-weight: 600;
 											line-height: 35px;
+											width: 130px;
 										}
 										.data {
 											width: 88px;
@@ -312,6 +314,7 @@
 											font-style: normal;
 											font-weight: 400;
 											line-height: 35px;
+											width: max-content;
 										}
 									}
 								}
@@ -690,7 +693,7 @@
 							align-items: center;
 							gap: 10px;
 							border-radius: 12px;
-							background: #eb6753;
+							background: #d31a1a;
 							.title {
 								color: #fff;
 								font-family: $font;
@@ -724,6 +727,8 @@
 							line-height: normal;
 							letter-spacing: 0.6px;
 							text-transform: capitalize;
+														width: max-content;
+
 						}
 						.sub-title {
 							color: #181a20;

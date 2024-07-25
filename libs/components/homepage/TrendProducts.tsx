@@ -8,6 +8,12 @@ import { Autoplay, Navigation, Pagination } from 'swiper';
 import { Product } from '../../types/product/product';
 import { ProductsInquiry } from '../../types/product/product.input';
 import TrendProductCard from './TrendProductCard';
+import { GET_PRODUCTS } from '../../../apollo/user/query';
+import { useMutation, useQuery } from '@apollo/client';
+import { T } from '../../types/common';
+import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation';
+import { Message } from '../../enums/common.enum';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 interface TrendProductsProps {
 	initialInput: ProductsInquiry;
@@ -17,9 +23,39 @@ const TrendProducts = (props: TrendProductsProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
 	const [trendProducts, setTrendProducts] = useState<Product[]>([]);
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT); // POST METHOD like postman
 
 	/** APOLLO REQUESTS **/
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: initialInput },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setTrendProducts(data?.getProducts?.list);
+		},
+	});
 	/** HANDLERS **/
+	const likeProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			// execute likeTargetProduct Mutation
+			await likeTargetProduct({
+				variables: { input: id },
+			});
+			await getProductsRefetch({ input: initialInput });
+			await sweetTopSmallSuccessAlert('success', 800);
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
 
 	if (trendProducts) console.log('trendProducts:', trendProducts);
 	if (!trendProducts) return null;
@@ -47,7 +83,7 @@ const TrendProducts = (props: TrendProductsProps) => {
 								{trendProducts.map((product: Product) => {
 									return (
 										<SwiperSlide key={product._id} className={'trend-product-slide'}>
-											<TrendProductCard product={product} />
+											<TrendProductCard product={product} likeProductHandler={likeProductHandler} />
 										</SwiperSlide>
 									);
 								})}
@@ -96,7 +132,7 @@ const TrendProducts = (props: TrendProductsProps) => {
 								{trendProducts.map((product: Product) => {
 									return (
 										<SwiperSlide key={product._id} className={'trend-product-slide'}>
-											<TrendProductCard product={product} />
+											<TrendProductCard product={product} likeProductHandler={likeProductHandler} />
 										</SwiperSlide>
 									);
 								})}
@@ -108,7 +144,6 @@ const TrendProducts = (props: TrendProductsProps) => {
 		);
 	}
 };
-
 TrendProducts.defaultProps = {
 	initialInput: {
 		page: 1,

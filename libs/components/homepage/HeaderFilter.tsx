@@ -2,114 +2,169 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Stack, Box, Modal, Divider, Button } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CloseIcon from '@mui/icons-material/Close';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { productSquare, productYears } from '../../config';
-import { ProductLocation, ProductType } from '../../enums/product.enum';
-import { ProductsInquiry } from '../../types/product/product.input';
-import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import CloseIcon from '@mui/icons-material/Close'
+import { useRouter } from 'next/router'
+import { useTranslation } from 'next-i18next'
+import { ProductLocation, ProductType, ProductBrand } from '../../enums/product.enum'
+import { Direction } from '../../enums/common.enum'
 
-const style = {
-	position: 'absolute' as 'absolute',
-	top: '50%',
-	left: '50%',
-	transform: 'translate(-50%, -50%)',
-	width: 'auto',
-	bgcolor: 'background.paper',
-	borderRadius: '12px',
-	outline: 'none',
-	boxShadow: 24,
-};
-
-const MenuProps = {
-	PaperProps: {
-		style: {
-			maxHeight: '200px',
-		},
-	},
-};
-
-const thisYear = new Date().getFullYear();
+const thisYear = new Date().getFullYear()
 
 interface HeaderFilterProps {
-	initialInput: ProductsInquiry;
+	initialInput: any
 }
 
 const HeaderFilter = (props: HeaderFilterProps) => {
-	const { initialInput } = props;
-	const device = useDeviceDetect();
-	const { t, i18n } = useTranslation('common');
-	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(initialInput);
-	const locationRef: any = useRef();
-	const typeRef: any = useRef();
-	const roomsRef: any = useRef();
-	const router = useRouter();
-	const [openAdvancedFilter, setOpenAdvancedFilter] = useState(false);
-	const [openLocation, setOpenLocation] = useState(false);
-	const [openType, setOpenType] = useState(false);
-	const [openRooms, setOpenRooms] = useState(false);
-	const [productLocation, setProductLocation] = useState<ProductLocation[]>(Object.values(ProductLocation));
-	const [productType, setProductType] = useState<ProductType[]>(Object.values(ProductType));
-	const [yearCheck, setYearCheck] = useState({ start: 1970, end: thisYear });
-	const [optionCheck, setOptionCheck] = useState('all');
+	const { initialInput } = props
+	const device = useDeviceDetect()
+	const { t, i18n } = useTranslation('common')
+	const [searchFilter, setSearchFilter] = useState<any>(initialInput)
+	const locationRef: any = useRef()
+	const typeRef: any = useRef()
+	const brandsRef: any = useRef()
+	const router = useRouter()
+	const [openAdvancedFilter, setOpenAdvancedFilter] = useState(false)
+	const [openLocation, setOpenLocation] = useState(false)
+	const [openType, setOpenType] = useState(false)
+	const [openBrands, setOpenBrands] = useState(false)
+	const [productLocation, setProductLocation] = useState<ProductLocation[]>(Object.values(ProductLocation))
+	const [productType, setProductType] = useState<ProductType[]>(Object.values(ProductType))
+	const [productBrand, setProductBrand] = useState<ProductBrand[]>(Object.values(ProductBrand))
 
+	// Handle range value changes ensuring end is not less than start
+	const handleRangeChange = useCallback((type: string, field: string, value: number) => {
+		try {
+			setSearchFilter((prev: any) => {
+				const range = prev.search[type]
+				// const start = range.start;
+				const end = field === 'start' ? Math.min(value, range.end) : Math.max(value, range.start)
+				return {
+					...prev,
+					search: {
+						...prev.search,
+						[type]: {
+							...range,
+							[field]: end,
+						},
+					},
+				}
+			})
+		} catch (error) {
+			console.log('ERROR in handleRangeChange', error)
+		}
+	}, [])
+
+	// Handle brand selection
+	const handleBrandSelection = useCallback((brand: ProductBrand) => {
+		try {
+			setSearchFilter((prev: any) => ({
+				...prev,
+				search: {
+					...prev.search,
+					brandList: prev.search.brandList.includes(brand)
+						? prev.search.brandList.filter((b: ProductBrand) => b !== brand)
+						: [...prev.search.brandList, brand],
+				},
+			}))
+		} catch (error) {
+			console.log('ERROR in handleBrandSelection', error)
+		}
+	}, [])
+
+	// Handle search action
+	const handleSearch = async () => {
+		try {
+			if (searchFilter?.search?.locationList?.length == 0) {
+				delete searchFilter.search.locationList
+			}
+
+			if (searchFilter?.search?.typeList?.length == 0) {
+				delete searchFilter.search.typeList
+			}
+			if (searchFilter?.search?.brandList?.length == 0) {
+				delete searchFilter.search.brandList
+			}
+
+			await router.push(
+				`/product?input=${JSON.stringify(searchFilter)}`,
+				`/product?input=${JSON.stringify(searchFilter)}`,
+			)
+			console.log('Data to send to backend:', searchFilter)
+		} catch (error) {
+			console.log('ERROR on Advanced search', error)
+		}
+	}
+	console.log(searchFilter, 'searchFilter from home')
+
+	// Handle reset action
+	const handleReset = () => {
+		setSearchFilter({
+			search: {
+				text: '',
+				engineRangeCc: { start: 50, end: 2500 },
+				powerRange: { start: 5, end: 200 },
+				torqueRange: { start: 10, end: 200 },
+				weightRange: { start: 50, end: 500 },
+				yearsRange: { start: 2000, end: new Date().getFullYear() },
+				pricesRange: { start: 0, end: 3000000 },
+				brandList: [] as ProductBrand[],
+			},
+		})
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		const clickHandler = (event: MouseEvent) => {
 			if (!locationRef?.current?.contains(event.target)) {
-				setOpenLocation(false);
+				setOpenLocation(false)
 			}
 
 			if (!typeRef?.current?.contains(event.target)) {
-				setOpenType(false);
+				setOpenType(false)
 			}
 
-			if (!roomsRef?.current?.contains(event.target)) {
-				setOpenRooms(false);
+			if (!brandsRef?.current?.contains(event.target)) {
+				setOpenBrands(false)
 			}
-		};
+		}
 
-		document.addEventListener('mousedown', clickHandler);
+		document.addEventListener('mousedown', clickHandler)
 
 		return () => {
-			document.removeEventListener('mousedown', clickHandler);
-		};
-	}, []);
+			document.removeEventListener('mousedown', clickHandler)
+		}
+	}, [])
 
 	/** HANDLERS **/
 	const advancedFilterHandler = (status: boolean) => {
-		setOpenLocation(false);
-		setOpenRooms(false);
-		setOpenType(false);
-		setOpenAdvancedFilter(status);
-	};
+		setOpenLocation(false)
+		setOpenBrands(false)
+		setOpenType(false)
+		setOpenAdvancedFilter(status)
+	}
 
 	const locationStateChangeHandler = () => {
-		setOpenLocation((prev) => !prev);
-		setOpenRooms(false);
-		setOpenType(false);
-	};
+		setOpenLocation((prev) => !prev)
+		setOpenBrands(false)
+		setOpenType(false)
+	}
 
 	const typeStateChangeHandler = () => {
-		setOpenType((prev) => !prev);
-		setOpenLocation(false);
-		setOpenRooms(false);
-	};
+		setOpenType((prev) => !prev)
+		setOpenLocation(false)
+		setOpenBrands(false)
+	}
 
-	const roomStateChangeHandler = () => {
-		setOpenRooms((prev) => !prev);
-		setOpenType(false);
-		setOpenLocation(false);
-	};
+	const brandStateChangeHandler = () => {
+		setOpenBrands((prev) => !prev)
+		setOpenType(false)
+		setOpenLocation(false)
+	}
 
 	const disableAllStateHandler = () => {
-		setOpenRooms(false);
-		setOpenType(false);
-		setOpenLocation(false);
-	};
+		setOpenBrands(false)
+		setOpenType(false)
+		setOpenLocation(false)
+	}
 
 	const productLocationSelectHandler = useCallback(
 		async (value: any) => {
@@ -120,14 +175,14 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						...searchFilter.search,
 						locationList: [value],
 					},
-				});
-				typeStateChangeHandler();
+				})
+				typeStateChangeHandler()
 			} catch (err: any) {
-				console.log('ERROR, productLocationSelectHandler:', err);
+				console.log('ERROR, productLocationSelectHandler:', err)
 			}
 		},
 		[searchFilter],
-	);
+	)
 
 	const productTypeSelectHandler = useCallback(
 		async (value: any) => {
@@ -138,187 +193,40 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						...searchFilter.search,
 						typeList: [value],
 					},
-				});
-				roomStateChangeHandler();
+				})
+				brandStateChangeHandler()
 			} catch (err: any) {
-				console.log('ERROR, productTypeSelectHandler:', err);
+				console.log('ERROR, productTypeSelectHandler:', err)
 			}
 		},
 		[searchFilter],
-	);
+	)
 
-	const productRoomSelectHandler = useCallback(
+	const productBrandSelectHandler = useCallback(
 		async (value: any) => {
 			try {
 				setSearchFilter({
 					...searchFilter,
 					search: {
 						...searchFilter.search,
-						roomsList: [value],
+						brandList: [value],
 					},
-				});
-				disableAllStateHandler();
+				})
+				disableAllStateHandler()
 			} catch (err: any) {
-				console.log('ERROR, productRoomSelectHandler:', err);
+				console.log('ERROR, productBrandSelectHandler:', err)
 			}
 		},
 		[searchFilter],
-	);
-
-	const productBedSelectHandler = useCallback(
-		async (number: Number) => {
-			try {
-				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
-						setSearchFilter({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-								bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-							},
-						});
-					} else {
-						setSearchFilter({
-							...searchFilter,
-							search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-						});
-					}
-				} else {
-					delete searchFilter?.search.bedsList;
-					setSearchFilter({ ...searchFilter });
-				}
-
-				console.log('productBedSelectHandler:', number);
-			} catch (err: any) {
-				console.log('ERROR, productBedSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const productOptionSelectHandler = useCallback(
-		async (e: any) => {
-			try {
-				const value = e.target.value;
-				setOptionCheck(value);
-
-				if (value !== 'all') {
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							options: [value],
-						},
-					});
-				} else {
-					delete searchFilter.search.options;
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					});
-				}
-			} catch (err: any) {
-				console.log('ERROR, productOptionSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const productSquareHandler = useCallback(
-		async (e: any, type: string) => {
-			const value = e.target.value;
-
-			if (type == 'start') {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, start: parseInt(value) },
-					},
-				});
-			} else {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, end: parseInt(value) },
-					},
-				});
-			}
-		},
-		[searchFilter],
-	);
-
-	const yearStartChangeHandler = async (event: any) => {
-		setYearCheck({ ...yearCheck, start: Number(event.target.value) });
-
-		setSearchFilter({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-				periodsRange: { start: Number(event.target.value), end: yearCheck.end },
-			},
-		});
-	};
-
-	const yearEndChangeHandler = async (event: any) => {
-		setYearCheck({ ...yearCheck, end: Number(event.target.value) });
-
-		setSearchFilter({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-				periodsRange: { start: yearCheck.start, end: Number(event.target.value) },
-			},
-		});
-	};
-
-	const resetFilterHandler = () => {
-		setSearchFilter(initialInput);
-		setOptionCheck('all');
-		setYearCheck({ start: 1970, end: thisYear });
-	};
-
-	const pushSearchHandler = async () => {
-		try {
-			if (searchFilter?.search?.locationList?.length == 0) {
-				delete searchFilter.search.locationList;
-			}
-
-			if (searchFilter?.search?.typeList?.length == 0) {
-				delete searchFilter.search.typeList;
-			}
-
-			if (searchFilter?.search?.roomsList?.length == 0) {
-				delete searchFilter.search.roomsList;
-			}
-
-			if (searchFilter?.search?.options?.length == 0) {
-				delete searchFilter.search.options;
-			}
-
-			if (searchFilter?.search?.bedsList?.length == 0) {
-				delete searchFilter.search.bedsList;
-			}
-
-			await router.push(
-				`/product?input=${JSON.stringify(searchFilter)}`,
-				`/product?input=${JSON.stringify(searchFilter)}`,
-			);
-		} catch (err: any) {
-			console.log('ERROR, pushSearchHandler:', err);
-		}
-	};
+	)
+	console.log(searchFilter?.search?.brandList, '+++++++++++++++++++')
 
 	if (device === 'mobile') {
-		return <div>HEADER FILTER MOBILE</div>;
+		return <div>HEADER FILTER MOBILE</div>
 	} else {
 		return (
 			<>
+				;
 				<Stack className={'search-box'}>
 					<Stack className={'select-box'}>
 						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>
@@ -326,12 +234,14 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span> {searchFilter?.search?.typeList ? searchFilter?.search?.typeList[0] : t('Product type')} </span>
+							<span> {searchFilter?.search?.typeList ? searchFilter.search.typeList[0] : t('Product type')} </span>
 							<ExpandMoreIcon />
 						</Box>
-						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
+						<Box className={`box ${openBrands ? 'on' : ''}`} onClick={brandStateChangeHandler}>
 							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} rooms}` : t('Rooms')}
+								{searchFilter.search.brandList.length !== 0
+									? `${searchFilter?.search?.brandList[0]}`
+									: t('Product brand')}
 							</span>
 							<ExpandMoreIcon />
 						</Box>
@@ -341,7 +251,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<img src="/img/icons/tune.svg" alt="" />
 							<span>{t('Advanced')}</span>
 						</Box>
-						<Box className={'search-btn'} onClick={pushSearchHandler}>
+						<Box className={'search-btn'} onClick={handleSearch}>
 							<img src="/img/icons/search_white.svg" alt="" />
 						</Box>
 					</Stack>
@@ -354,229 +264,243 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 									<img src={`img/banner/cities/${location}.webp`} alt="" />
 									<span>{location}</span>
 								</div>
-							);
+							)
 						})}
 					</div>
 
 					<div className={`filter-type ${openType ? 'on' : ''}`} ref={typeRef}>
 						{productType.map((type: string) => {
 							return (
-								<div
-									style={{ backgroundImage: `url(/img/banner/types/${type.toLowerCase()}.webp)` }}
-									onClick={() => productTypeSelectHandler(type)}
-									key={type}
-								>
+								<div onClick={() => productTypeSelectHandler(type)} className="item-type" key={type}>
 									<span>{type}</span>
 								</div>
-							);
+							)
 						})}
 					</div>
 
-					<div className={`filter-rooms ${openRooms ? 'on' : ''}`} ref={roomsRef}>
-						{[1, 2, 3, 4, 5].map((room: number) => {
+					<div className={`filter-brands ${openBrands ? 'on' : ''}`} ref={brandsRef}>
+						{productBrand.map((brand: string) => {
 							return (
-								<span onClick={() => productRoomSelectHandler(room)} key={room}>
-									{room} room{room > 1 ? 's' : ''}
-								</span>
-							);
+								<div onClick={() => productBrandSelectHandler(brand)} key={brand}>
+									<span>{brand}</span>
+								</div>
+							)
 						})}
 					</div>
 				</Stack>
-
-				{/* ADVANCED FILTER MODAL */}
+				{/* ADVANCED FILTER MODAL */};
 				<Modal
 					open={openAdvancedFilter}
 					onClose={() => advancedFilterHandler(false)}
 					aria-labelledby="modal-modal-title"
 					aria-describedby="modal-modal-description"
 				>
-					{/* @ts-ignore */}
-					<Box sx={style}>
-						<Box className={'advanced-filter-modal'}>
-							<div className={'close'} onClick={() => advancedFilterHandler(false)}>
-								<CloseIcon />
+					<div className="advanced-search-modal">
+						<div className={'close-button'} onClick={() => advancedFilterHandler(false)}>
+							<CloseIcon />
+						</div>
+						<h2>Search your next bike</h2>
+						<div className="filter">
+							<input
+								type="text"
+								placeholder="Search..."
+								value={searchFilter?.search?.text ?? ''}
+								onChange={(e: any) => {
+									setSearchFilter({
+										...searchFilter,
+										search: { ...searchFilter.search, text: e.target.value },
+									})
+								}}
+								className="search-input"
+							/>
+						</div>
+						<div className="filter">
+							<label>
+								Engine (cc): {searchFilter.search.engineRangeCc.start} - {searchFilter.search.engineRangeCc.end}
+							</label>
+							<div className="range-slider">
+								<input
+									type="range"
+									min="50"
+									max="2500"
+									value={searchFilter.search.engineRangeCc.start}
+									onChange={(e) => {
+										handleRangeChange('engineRangeCc', 'start', Number(e.target.value))
+									}}
+								/>
+								<input
+									type="range"
+									min={searchFilter.search.engineRangeCc.start}
+									max="2500"
+									value={searchFilter.search.engineRangeCc.end}
+									onChange={(e) => handleRangeChange('engineRangeCc', 'end', Number(e.target.value))}
+								/>
 							</div>
-							<div className={'top'}>
-								<span>Find your home</span>
-								<div className={'search-input-box'}>
-									<img src="/img/icons/search.svg" alt="" />
-									<input
-										value={searchFilter?.search?.text ?? ''}
-										type="text"
-										placeholder={'What are you looking for?'}
-										onChange={(e: any) => {
-											setSearchFilter({
-												...searchFilter,
-												search: { ...searchFilter.search, text: e.target.value },
-											});
-										}}
-									/>
-								</div>
+						</div>
+						<div className="filter">
+							<label>
+								Power (hp): {searchFilter.search.powerRange.start} - {searchFilter.search.powerRange.end}
+							</label>
+							<div className="range-slider">
+								<input
+									type="range"
+									min="5"
+									max="200"
+									value={searchFilter.search.powerRange.start}
+									onChange={(e) => handleRangeChange('powerRange', 'start', Number(e.target.value))}
+								/>
+								<input
+									type="range"
+									min={searchFilter.search.powerRange.start}
+									max="200"
+									value={searchFilter.search.powerRange.end}
+									onChange={(e) => handleRangeChange('powerRange', 'end', Number(e.target.value))}
+								/>
 							</div>
-							<Divider sx={{ mt: '30px', mb: '35px' }} />
-							<div className={'middle'}>
-								<div className={'row-box'}>
-									<div className={'box'}>
-										<span>bedrooms</span>
-										<div className={'inside'}>
-											<div
-												className={`room ${!searchFilter?.search?.bedsList ? 'active' : ''}`}
-												onClick={() => productBedSelectHandler(0)}
-											>
-												Any
-											</div>
-											{[1, 2, 3, 4, 5].map((bed: number) => (
-												<div
-													className={`room ${searchFilter?.search?.bedsList?.includes(bed) ? 'active' : ''}`}
-													onClick={() => productBedSelectHandler(bed)}
-													key={bed}
-												>
-													{bed == 0 ? 'Any' : bed}
-												</div>
-											))}
-										</div>
-									</div>
-									<div className={'box'}>
-										<span>options</span>
-										<div className={'inside'}>
-											<FormControl>
-												<Select
-													value={optionCheck}
-													onChange={productOptionSelectHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-												>
-													<MenuItem value={'all'}>All Options</MenuItem>
-													<MenuItem value={'productBarter'}>Barter</MenuItem>
-													<MenuItem value={'productRent'}>Rent</MenuItem>
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-								</div>
-								<div className={'row-box'} style={{ marginTop: '44px' }}>
-									<div className={'box'}>
-										<span>Year Built</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.start.toString()}
-													onChange={yearStartChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{productYears?.slice(0)?.map((year: number) => (
-														<MenuItem value={year} disabled={yearCheck.end <= year} key={year}>
-															{year}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.end.toString()}
-													onChange={yearEndChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{productYears
-														?.slice(0)
-														.reverse()
-														.map((year: number) => (
-															<MenuItem value={year} disabled={yearCheck.start >= year} key={year}>
-																{year}
-															</MenuItem>
-														))}
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-									<div className={'box'}>
-										<span>square meter</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.squaresRange?.start}
-													onChange={(e: any) => productSquareHandler(e, 'start')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{productSquare?.map((square: number) => (
-														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-															key={square}
-														>
-															{square}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.squaresRange?.end}
-													onChange={(e: any) => productSquareHandler(e, 'end')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{productSquare?.map((square: number) => (
-														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-															key={square}
-														>
-															{square}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-								</div>
+						</div>
+						<div className="filter">
+							<label>
+								Torque (Nm): {searchFilter.search.torqueRange.start} - {searchFilter.search.torqueRange.end}
+							</label>
+							<div className="range-slider">
+								<input
+									type="range"
+									min="10"
+									max="200"
+									value={searchFilter.search.torqueRange.start}
+									onChange={(e) => handleRangeChange('torqueRange', 'start', Number(e.target.value))}
+								/>
+								<input
+									type="range"
+									min={searchFilter.search.torqueRange.start}
+									max="200"
+									value={searchFilter.search.torqueRange.end}
+									onChange={(e) => handleRangeChange('torqueRange', 'end', Number(e.target.value))}
+								/>
 							</div>
-							<Divider sx={{ mt: '60px', mb: '18px' }} />
-							<div className={'bottom'}>
-								<div onClick={resetFilterHandler}>
-									<img src="/img/icons/reset.svg" alt="" />
-									<span>Reset all filters</span>
-								</div>
-								<Button
-									startIcon={<img src={'/img/icons/search.svg'} />}
-									className={'search-btn'}
-									onClick={pushSearchHandler}
+						</div>
+						<div className="filter">
+							<label>
+								Price ($): {searchFilter.search.pricesRange.start} - {searchFilter.search.pricesRange.end}
+							</label>
+							<div className="range-wrapper">
+								<input
+									type="number"
+									min="0"
+									value={searchFilter.search.pricesRange.start}
+									onChange={(e) =>
+										setSearchFilter({
+											...searchFilter,
+											pricesRange: {
+												...searchFilter.search.pricesRange,
+												start: Math.min(Number(e.target.value), searchFilter.search.pricesRange.end),
+											},
+										})
+									}
+								/>
+								<span>-</span>
+								<input
+									type="number"
+									min={searchFilter?.search.pricesRange?.start}
+									value={searchFilter?.search.pricesRange?.end}
+									onChange={(e) =>
+										setSearchFilter({
+											...searchFilter,
+											pricesRange: {
+												...searchFilter?.search?.pricesRange,
+												end: Math.max(Number(e.target.value), searchFilter?.search?.pricesRange?.start),
+											},
+										})
+									}
+								/>
+							</div>
+						</div>
+						<div className="filter">
+							<label>
+								Year: {searchFilter?.search?.yearsRange?.start}-{searchFilter?.search?.yearsRange?.end}
+							</label>
+							<div className="year-selector">
+								<select
+									value={searchFilter?.search?.yearsRange?.start}
+									onChange={(e) =>
+										setSearchFilter({
+											...searchFilter,
+											yearsRange: { ...searchFilter?.search?.yearsRange, start: Number(e.target.value) },
+										})
+									}
 								>
-									Search
-								</Button>
+									{Array.from({ length: new Date().getFullYear() - 1999 }, (_, i) => 2000 + i).map((year) => (
+										<option key={year} value={year}>
+											{year}
+										</option>
+									))}
+								</select>
+								<span>-</span>
+								<select
+									value={searchFilter?.search?.yearsRange?.end}
+									onChange={(e) =>
+										setSearchFilter({
+											...searchFilter,
+											yearsRange: { ...searchFilter?.search?.yearsRange, end: Number(e.target.value) },
+										})
+									}
+								>
+									{Array.from({ length: new Date().getFullYear() - 1999 }, (_, i) => 2000 + i).map((year) => (
+										<option key={year} value={year}>
+											{year}
+										</option>
+									))}
+								</select>
 							</div>
-						</Box>
-					</Box>
+						</div>
+
+						<div className="filter">
+							<label>Brands:</label>
+							<div className="brand-selection">
+								{Object.values(ProductBrand).map((brand) => (
+									<button
+										key={brand}
+										className={`brand-button ${searchFilter?.search?.brandList?.includes(brand) ? 'selected' : ''}`}
+										onClick={() => handleBrandSelection(brand)}
+									>
+										{brand}
+									</button>
+								))}
+							</div>
+						</div>
+
+						<div className="btn-wrapper">
+							<button className="reset-button" onClick={handleReset}>
+								Reset
+							</button>
+							<button className="search-button" onClick={handleSearch}>
+								Search
+							</button>
+						</div>
+					</div>
 				</Modal>
 			</>
-		);
+		)
 	}
-};
+}
 
 HeaderFilter.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 9,
+		sort: 'createdAt',
+		direction: Direction.ASC,
 		search: {
-			squaresRange: {
-				start: 0,
-				end: 500,
-			},
-			pricesRange: {
-				start: 0,
-				end: 2000000,
-			},
+			text: '',
+			engineRangeCc: { start: 50, end: 2500 },
+			powerRange: { start: 5, end: 200 },
+			torqueRange: { start: 10, end: 200 },
+			weightRange: { start: 50, end: 500 },
+			yearsRange: { start: 2000, end: new Date().getFullYear() },
+			pricesRange: { start: 0, end: 3000000 },
+			brandList: [] as ProductBrand[],
 		},
 	},
-};
+}
 
 export default HeaderFilter;

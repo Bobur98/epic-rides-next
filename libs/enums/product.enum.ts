@@ -12,6 +12,19 @@ export enum ProductType {
 	SCRAMBLER = 'SCRAMBLER',
 }
 
+export enum ProductBrand {
+	HONDA = 'HONDA',
+	YAMAHA = 'YAMAHA',
+	KAWASAKI = 'KAWASAKI',
+	SUZUKI = 'SUZUKI',
+	DUCATI = 'DUCATI',
+	BMW = 'BMW',
+	HARLEY_DAVIDSON = 'HARLEY-DAVIDSON',
+	KTM = 'KTM',
+	TRIUMPH = 'TRIUMPH',
+	INDIAN = 'INDIAN',
+}
+
 export enum ProductStatus {
 	ACTIVE = 'ACTIVE',
 	SOLD = 'SOLD',
@@ -28,4 +41,9 @@ export enum ProductLocation {
 	CHONJU = 'CHONJU',
 	DAEJON = 'DAEJON',
 	JEJU = 'JEJU',
+}
+
+export enum ProductCondition {
+	NEW = 'NEW',
+	USED = 'USED',
 }

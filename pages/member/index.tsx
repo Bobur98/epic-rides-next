@@ -8,29 +8,35 @@ import MemberProducts from '../../libs/components/member/MemberProducts';
 import { useRouter } from 'next/router';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberArticles from '../../libs/components/member/MemberArticles';
-import { useReactiveVar } from '@apollo/client';
-import { sweetErrorHandling } from '../../libs/sweetAlert';
-import MemberFollowings from '../../libs/components/member/MemberFollowings';
-import { userVar } from '../../apollo/store';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useMutation, useReactiveVar } from '@apollo/client'
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert'
+import MemberFollowings from '../../libs/components/member/MemberFollowings'
+import { userVar } from '../../apollo/store'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { SUBSCRIBE, UNSUBSCRIBE, LIKE_TARGET_MEMBER } from '../../apollo/user/mutation'
+import { Messages } from '../../libs/config'
+import { Message } from '../../libs/enums/common.enum'
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),
 	},
-});
+})
 
 const MemberPage: NextPage = () => {
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const category: any = router.query?.category;
-	const user = useReactiveVar(userVar);
+	const device = useDeviceDetect()
+	const router = useRouter()
+	const category: any = router.query?.category
+	const user = useReactiveVar(userVar)
 
 	/** APOLLO REQUESTS **/
+	const [subscribe] = useMutation(SUBSCRIBE)
+	const [unsubscribe] = useMutation(UNSUBSCRIBE)
+	const [likeTargetMember] = useMutation(LIKE_TARGET_MEMBER)
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (!router.isReady) return;
+		if (!router.isReady) return
 		if (!category) {
 			router.replace(
 				{
@@ -39,26 +45,74 @@ const MemberPage: NextPage = () => {
 				},
 				undefined,
 				{ shallow: true },
-			);
+			)
 		}
-	}, [category, router]);
+	}, [category, router])
 
 	/** HANDLERS **/
-	const subscribeHandler = async (id: string, refetch: any, query: any) => {};
+	const subscribeHandler = async (id: string, refetch: any, query: any) => {
+		try {
+			if (!id) throw new Error(Messages.error1)
+			if (!user._id) throw new Error(Messages.error2)
 
-	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {};
+			await subscribe({
+				variables: {
+					input: id,
+				},
+			})
+			await sweetTopSmallSuccessAlert('Subscribed!', 800)
+			await refetch({ input: query })
+		} catch (err: any) {
+			sweetErrorHandling(err).then()
+		}
+	}
+
+	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {
+		try {
+			if (!id) throw new Error(Messages.error1)
+			if (!user._id) throw new Error(Messages.error2)
+
+			await unsubscribe({
+				variables: {
+					input: id,
+				},
+			})
+
+			await sweetTopSmallSuccessAlert('Unsubscribed!', 800)
+			await refetch({ input: query })
+		} catch (err: any) {
+			sweetErrorHandling(err).then()
+		}
+	}
 
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
-			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
+			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`)
+			else await router.push(`/member?memberId=${memberId}`)
 		} catch (error) {
-			await sweetErrorHandling(error);
+			await sweetErrorHandling(error)
 		}
-	};
+	}
+
+	const likeMemberHandler = async (id: string, refetch: any, query: any) => {
+		try {
+			if (!id) throw new Error(Messages.error1)
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED)
+
+			// execute likeTargetProduct Mutation
+			await likeTargetMember({
+				variables: { input: id },
+			})
+			await sweetTopSmallSuccessAlert('Success!', 800)
+			await refetch({ input: query })
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
+		}
+	}
 
 	if (device === 'mobile') {
-		return <>MEMBER PAGE MOBILE</>;
+		return <>MEMBER PAGE MOBILE</>
 	} else {
 		return (
 			<div id="member-page" style={{ position: 'relative' }}>
@@ -76,6 +130,7 @@ const MemberPage: NextPage = () => {
 											subscribeHandler={subscribeHandler}
 											unsubscribeHandler={unsubscribeHandler}
 											redirectToMemberPageHandler={redirectToMemberPageHandler}
+											likeMemberHandler={likeMemberHandler}
 										/>
 									)}
 									{category === 'followings' && (
@@ -83,6 +138,7 @@ const MemberPage: NextPage = () => {
 											subscribeHandler={subscribeHandler}
 											unsubscribeHandler={unsubscribeHandler}
 											redirectToMemberPageHandler={redirectToMemberPageHandler}
+											likeMemberHandler={likeMemberHandler}
 										/>
 									)}
 									{category === 'articles' && <MemberArticles />}
@@ -92,8 +148,8 @@ const MemberPage: NextPage = () => {
 					</Stack>
 				</div>
 			</div>
-		);
+		)
 	}
-};
+}
 
 export default withLayoutBasic(MemberPage);

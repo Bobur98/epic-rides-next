@@ -3,49 +3,68 @@ import { Box, Button, Pagination, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
-import { useReactiveVar } from '@apollo/client';
-import { Following } from '../../types/follow/follow';
-import { REACT_APP_API_URL } from '../../config';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { userVar } from '../../../apollo/store';
+import { useQuery, useReactiveVar } from '@apollo/client'
+import { Following } from '../../types/follow/follow'
+import { REACT_APP_API_URL } from '../../config'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+import { userVar } from '../../../apollo/store'
+import { GET_MEMBER_FOLLOWINGS } from '../../../apollo/user/query'
+import { T } from '../../types/common'
 
 interface MemberFollowingsProps {
-	initialInput: FollowInquiry;
-	subscribeHandler: any;
-	unsubscribeHandler: any;
-	redirectToMemberPageHandler: any;
+	initialInput: FollowInquiry
+	subscribeHandler: any
+	unsubscribeHandler: any
+	redirectToMemberPageHandler: any
+	likeMemberHandler: any
 }
 
 const MemberFollowings = (props: MemberFollowingsProps) => {
-	const { initialInput, subscribeHandler, unsubscribeHandler, redirectToMemberPageHandler } = props;
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const [total, setTotal] = useState<number>(0);
-	const category: any = router.query?.category ?? 'products';
-	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(initialInput);
-	const [memberFollowings, setMemberFollowings] = useState<Following[]>([]);
-	const user = useReactiveVar(userVar);
+	const { initialInput, subscribeHandler, unsubscribeHandler, redirectToMemberPageHandler, likeMemberHandler } = props
+	const device = useDeviceDetect()
+	const router = useRouter()
+	const [total, setTotal] = useState<number>(0)
+	const category: any = router.query?.category ?? 'products'
+	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(initialInput)
+	const [memberFollowings, setMemberFollowings] = useState<Following[]>([])
+	const user = useReactiveVar(userVar)
 
 	/** APOLLO REQUESTS **/
-
+	const {
+		loading: getMemberFollowingsLoading,
+		data: getMemberFollowingsData,
+		error: getMemberFollowingsError,
+		refetch: getMemberFollowingsRefetch,
+	} = useQuery(GET_MEMBER_FOLLOWINGS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: followInquiry },
+		skip: !followInquiry?.search?.followerId,
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setMemberFollowings(data?.getMemberFollowings?.list)
+			setTotal(data?.getMemberFollowings?.metaCounter[0]?.total)
+		},
+	})
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.memberId)
-			setFollowInquiry({ ...followInquiry, search: { followerId: router.query.memberId as string } });
-		else setFollowInquiry({ ...followInquiry, search: { followerId: user?._id } });
-	}, [router]);
+			setFollowInquiry({ ...followInquiry, search: { followerId: router.query.memberId as string } })
+		else setFollowInquiry({ ...followInquiry, search: { followerId: user?._id } })
+	}, [router])
 
-	useEffect(() => {}, [followInquiry]);
+	useEffect(() => {
+		getMemberFollowingsRefetch({ input: followInquiry }).then()
+	}, [followInquiry])
 
 	/** HANDLERS **/
 	const paginationHandler = async (event: ChangeEvent<unknown>, value: number) => {
-		followInquiry.page = value;
-		setFollowInquiry({ ...followInquiry });
-	};
+		followInquiry.page = value
+		setFollowInquiry({ ...followInquiry })
+	}
 
 	if (device === 'mobile') {
-		return <div>Epic Rides FOLLOWS MOBILE</div>;
+		return <div>Epic Rides FOLLOWS MOBILE</div>
 	} else {
 		return (
 			<div id="member-follows-page">
@@ -69,7 +88,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 					{memberFollowings.map((follower: Following) => {
 						const imagePath: string = follower?.followingData?.memberImage
 							? `${REACT_APP_API_URL}/${follower?.followingData?.memberImage}`
-							: '/img/profile/defaultUser.svg';
+							: '/img/profile/defaultUser.svg'
 						return (
 							<Stack className="follows-card-box" key={follower._id}>
 								<Stack className={'info'} onClick={() => redirectToMemberPageHandler(follower?.followingData?._id)}>
@@ -91,9 +110,18 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 									</Box>
 									<Box className={'info-box'} component={'div'}>
 										{follower?.meLiked && follower?.meLiked[0]?.myFavorite ? (
-											<FavoriteIcon color="primary" />
+											<FavoriteIcon
+												color="primary"
+												onClick={() =>
+													likeMemberHandler(follower?.followingData?._id, getMemberFollowingsRefetch, followInquiry)
+												}
+											/>
 										) : (
-											<FavoriteBorderIcon />
+											<FavoriteBorderIcon
+												onClick={() =>
+													likeMemberHandler(follower?.followingData?._id, getMemberFollowingsRefetch, followInquiry)
+												}
+											/>
 										)}
 										<span>({follower?.followingData?.memberLikes})</span>
 									</Box>
@@ -123,7 +151,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 									</Stack>
 								)}
 							</Stack>
-						);
+						)
 					})}
 				</Stack>
 				{memberFollowings.length !== 0 && (
@@ -143,9 +171,9 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 					</Stack>
 				)}
 			</div>
-		);
+		)
 	}
-};
+}
 
 MemberFollowings.defaultProps = {
 	initialInput: {

@@ -1,4 +1,4 @@
-import { ProductLocation, ProductStatus, ProductType } from '../../enums/product.enum';
+import { ProductCondition, ProductLocation, ProductStatus, ProductType } from '../../enums/product.enum';
 import { Member } from '../member/member';
 
 export interface MeLiked {
@@ -17,23 +17,27 @@ export interface Product {
 	productStatus: ProductStatus;
 	productLocation: ProductLocation;
 	productAddress: string;
-	productTitle: string;
+	productBrand: string;
+	productModel: number;
+	productYear: number;
+	productEngine: string;
+	productEngineCc: number;
+	productPower: number;
+	productDesc?: string;
+	productTorque: number;
+	productWeight: number;
 	productPrice: number;
-	productSquare: number;
-	productBeds: number;
-	productRooms: number;
+	productCondition: ProductCondition;
 	productViews: number;
 	productLikes: number;
 	productComments: number;
 	productRank: number;
 	productImages: string[];
-	productDesc?: string;
 	productBarter: boolean;
 	productRent: boolean;
 	memberId: string;
 	soldAt?: Date;
 	deletedAt?: Date;
-	constructedAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 	/** from aggregation **/

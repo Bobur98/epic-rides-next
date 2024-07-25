@@ -1,6 +1,6 @@
 import React from 'react';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Stack } from '@mui/material';
+import Stack from '@mui/material/Stack';
 
 const Advertisement = () => {
 	const device = useDeviceDetect();
@@ -16,7 +16,7 @@ const Advertisement = () => {
 					preload="auto"
 					style={{ width: '100%', height: '100%', objectFit: 'cover' }}
 				>
-					<source src="/video/ads.mov" type="video/mp4" />
+					<source src="/video/ads.mp4" type="video/mp4" />
 				</video>
 			</Stack>
 		);
@@ -31,7 +31,7 @@ const Advertisement = () => {
 					preload="auto"
 					style={{ width: '100%', height: '100%', objectFit: 'cover' }}
 				>
-					<source src="/video/ads.mov" type="video/mp4" />
+					<source src="/video/ads.mp4" type="video/mp4" />
 				</video>
 			</Stack>
 		);

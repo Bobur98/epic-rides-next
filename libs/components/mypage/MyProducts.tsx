@@ -3,43 +3,94 @@ import { NextPage } from 'next';
 import { Pagination, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { ProductCard } from './ProductCard';
-import { useReactiveVar } from '@apollo/client';
-import { Product } from '../../types/product/product';
-import { AgentProductsInquiry } from '../../types/product/product.input';
-import { T } from '../../types/common';
-import { ProductStatus } from '../../enums/product.enum';
-import { userVar } from '../../../apollo/store';
-import { useRouter } from 'next/router';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client'
+import { Product } from '../../types/product/product'
+import { AgentProductsInquiry } from '../../types/product/product.input'
+import { T } from '../../types/common'
+import { ProductStatus } from '../../enums/product.enum'
+import { userVar } from '../../../apollo/store'
+import { useRouter } from 'next/router'
+import { UPDATE_PRODUCT } from '../../../apollo/user/mutation'
+import { GET_AGENT_PRODUCTS } from '../../../apollo/user/query'
+import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert'
 
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
-	const device = useDeviceDetect();
-	const [searchFilter, setSearchFilter] = useState<AgentProductsInquiry>(initialInput);
-	const [agentProducts, setAgentProducts] = useState<Product[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const user = useReactiveVar(userVar);
-	const router = useRouter();
+	const device = useDeviceDetect()
+	const [searchFilter, setSearchFilter] = useState<AgentProductsInquiry>(initialInput)
+	const [agentProducts, setAgentProducts] = useState<Product[]>([])
+	const [total, setTotal] = useState<number>(0)
+	const user = useReactiveVar(userVar)
+	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
+	const [updateProduct] = useMutation(UPDATE_PRODUCT)
 
+	const {
+		loading: getAgentProductsLoading,
+		data: getAgentProductsData,
+		error: getAgentProductsError,
+		refetch: getAgentProductsRefetch,
+	} = useQuery(GET_AGENT_PRODUCTS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: searchFilter },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setAgentProducts(data?.getAgentProducts?.list)
+			setTotal(data?.getAgentProducts?.metaCounter[0]?.total ?? 0)
+		},
+	})
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
-		setSearchFilter({ ...searchFilter, page: value });
-	};
+		setSearchFilter({ ...searchFilter, page: value })
+	}
 
 	const changeStatusHandler = (value: ProductStatus) => {
-		setSearchFilter({ ...searchFilter, search: { productStatus: value } });
-	};
+		setSearchFilter({ ...searchFilter, search: { productStatus: value } })
+	}
 
-	const deleteProductHandler = async (id: string) => {};
+	const deleteProductHandler = async (id: string) => {
+		try {
+			if (await sweetConfirmAlert('Are you sure to delete this product?')) {
+				await updateProduct({
+					variables: {
+						input: {
+							_id: id,
+							productStatus: 'DELETE',
+						},
+					},
+				})
 
-	const updateProductHandler = async (status: string, id: string) => {};
+				await getAgentProductsRefetch({ input: searchFilter })
+			}
+		} catch (error: any) {
+			await sweetErrorHandling(error)
+		}
+	}
+
+	const updateProductHandler = async (status: string, id: string) => {
+		try {
+			if (await sweetConfirmAlert(`Are you sure to change ${status} status?`)) {
+				await updateProduct({
+					variables: {
+						input: {
+							_id: id,
+							productStatus: status,
+						},
+					},
+				})
+				await getAgentProductsRefetch({ input: searchFilter })
+			}
+		} catch (error) {
+			await sweetErrorHandling(error)
+		}
+	}
 
 	if (user?.memberType !== 'AGENT') {
-		router.back();
+		router.back()
 	}
 
 	if (device === 'mobile') {
-		return <div>Epic Rides PRODUCTS MOBILE</div>;
+		return <div>Epic Rides PRODUCTS MOBILE</div>
 	} else {
 		return (
 			<div id="my-product-page">
@@ -86,7 +137,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 										deleteProductHandler={deleteProductHandler}
 										updateProductHandler={updateProductHandler}
 									/>
-								);
+								)
 							})
 						)}
 
@@ -109,9 +160,9 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 					</Stack>
 				</Stack>
 			</div>
-		);
+		)
 	}
-};
+}
 
 MyProducts.defaultProps = {
 	initialInput: {
@@ -122,6 +173,10 @@ MyProducts.defaultProps = {
 			productStatus: 'ACTIVE',
 		},
 	},
-};
+}
 
-export default MyProducts;
+export default MyProducts
+function updateProduct(arg0: { variables: { input: { _id: string; productStatus: string } } }) {
+	throw new Error('Function not implemented.')
+}
+

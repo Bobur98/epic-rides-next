@@ -6,6 +6,7 @@ const Notice = () => {
 	const device = useDeviceDetect();
 
 	/** APOLLO REQUESTS **/
+	
 	/** LIFECYCLES **/
 	/** HANDLERS **/
 

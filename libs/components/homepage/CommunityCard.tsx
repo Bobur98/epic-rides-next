@@ -29,7 +29,6 @@ const CommunityCard = (props: CommunityCardProps) => {
 							<div>{index + 1}</div>
 						</div>
 						<strong>{article?.articleTitle}</strong>
-						<span>Free Board</span>
 					</Box>
 				</Link>
 			);

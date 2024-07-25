@@ -8,27 +8,32 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { T } from '../../types/common';
 import '@toast-ui/editor/dist/toastui-editor.css';
+import { CREATE_BOARD_ARTICLE } from '../../../apollo/user/mutation'
+import { useMutation } from '@apollo/client'
+import { Message } from '../../enums/common.enum'
+import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert'
 
 const TuiEditor = () => {
 	const editorRef = useRef<Editor>(null),
 		token = getJwtToken(),
-		router = useRouter();
-	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
+		router = useRouter()
+	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE)
 
 	/** APOLLO REQUESTS **/
+	const [createBoardArticle] = useMutation(CREATE_BOARD_ARTICLE)
 
 	const memoizedValues = useMemo(() => {
 		const articleTitle = '',
 			articleContent = '',
-			articleImage = '';
+			articleImage = ''
 
-		return { articleTitle, articleContent, articleImage };
-	}, []);
+		return { articleTitle, articleContent, articleImage }
+	}, [])
 
 	/** HANDLERS **/
 	const uploadImage = async (image: any) => {
 		try {
-			const formData = new FormData();
+			const formData = new FormData()
 			formData.append(
 				'operations',
 				JSON.stringify({
@@ -40,14 +45,14 @@ const TuiEditor = () => {
 						target: 'article',
 					},
 				}),
-			);
+			)
 			formData.append(
 				'map',
 				JSON.stringify({
 					'0': ['variables.file'],
 				}),
-			);
-			formData.append('0', image);
+			)
+			formData.append('0', image)
 
 			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
 				headers: {
@@ -55,34 +60,60 @@ const TuiEditor = () => {
 					'apollo-require-preflight': true,
 					Authorization: `Bearer ${token}`,
 				},
-			});
+			})
 
-			const responseImage = response.data.data.imageUploader;
-			console.log('=responseImage: ', responseImage);
-			memoizedValues.articleImage = responseImage;
+			const responseImage = response.data.data.imageUploader
+			console.log('=responseImage: ', responseImage)
+			memoizedValues.articleImage = responseImage
 
-			return `${REACT_APP_API_URL}/${responseImage}`;
+			return `${REACT_APP_API_URL}/${responseImage}`
 		} catch (err) {
-			console.log('Error, uploadImage:', err);
+			console.log('Error, uploadImage:', err)
 		}
-	};
+	}
 
 	const changeCategoryHandler = (e: any) => {
-		setArticleCategory(e.target.value);
-	};
+		setArticleCategory(e.target.value)
+	}
 
 	const articleTitleHandler = (e: T) => {
-		console.log(e.target.value);
-		memoizedValues.articleTitle = e.target.value;
-	};
+		console.log(e.target.value)
+		memoizedValues.articleTitle = e.target.value
+	}
 
-	const handleRegisterButton = async () => {};
+	const handleRegisterButton = async () => {
+		try {
+			const editor = editorRef.current
+			const articleContent = editor?.getInstance().getHTML() as string
+			memoizedValues.articleContent = articleContent
+
+			if (memoizedValues.articleContent === '' && memoizedValues.articleTitle === '') {
+				throw new Error(Message.INSERT_ALL_INPUTS)
+			}
+
+			await createBoardArticle({
+				variables: {
+					input: { ...memoizedValues, articleCategory },
+				},
+			})
+
+			await sweetTopSuccessAlert('Article is created successfully', 700)
+			await router.push({
+				pathname: '/mypage',
+				query: {
+					category: 'myArticles',
+				},
+			})
+		} catch (error) {
+			sweetErrorHandling(new Error(Message.INSERT_ALL_INPUTS)).then()
+		}
+	}
 
 	const doDisabledCheck = () => {
 		if (memoizedValues.articleContent === '' || memoizedValues.articleTitle === '') {
-			return true;
+			return true
 		}
-	};
+	}
 
 	return (
 		<Stack>
@@ -135,9 +166,9 @@ const TuiEditor = () => {
 				ref={editorRef}
 				hooks={{
 					addImageBlobHook: async (image: any, callback: any) => {
-						const uploadedImageURL = await uploadImage(image);
-						callback(uploadedImageURL);
-						return false;
+						const uploadedImageURL = await uploadImage(image)
+						callback(uploadedImageURL)
+						return false
 					},
 				}}
 				events={{
@@ -156,7 +187,7 @@ const TuiEditor = () => {
 				</Button>
 			</Stack>
 		</Stack>
-	);
-};
+	)
+}
 
 export default TuiEditor;

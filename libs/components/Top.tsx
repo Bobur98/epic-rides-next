@@ -143,50 +143,60 @@ const Top = () => {
 		return (
 			<Stack className={'top'}>
 				<Link href={'/'}>
-					<div>{t('Home')}</div>
+					<div className={router.pathname === '/' ? 'active-link' : ''}>{t('Home')}</div>
 				</Link>
 				<Link href={'/product'}>
-					<div>{t('Products')}</div>
+					<div className={router.pathname === '/product' ? 'active-link' : ''}>{t('Products')}</div>
 				</Link>
 				<Link href={'/agent'}>
-					<div> {t('Agents')} </div>
+					<div className={router.pathname === '/agent' ? 'active-link' : ''}>{t('Agents')}</div>
 				</Link>
 				<Link href={'/community?articleCategory=FREE'}>
-					<div> {t('Community')} </div>
+					<div className={router.pathname === '/community' ? 'active-link' : ''}>{t('Community')}</div>
 				</Link>
+				{user?._id && (
+					<Link href={'/mypage'}>
+						<div className={router.pathname === '/mypage' ? 'active-link' : ''}>{t('My Page')}</div>
+					</Link>
+				)}
 				<Link href={'/cs'}>
-					<div> {t('CS')} </div>
+					<div className={router.pathname === '/cs' ? 'active-link' : ''}>{t('CS')}</div>
 				</Link>
 			</Stack>
-		);
+		)
 	} else {
 		return (
 			<Stack className={'navbar'}>
 				<Stack className={`navbar-main ${colorChange ? 'transparent' : ''} ${bgColor ? 'transparent' : ''}`}>
 					<Stack className={'container'}>
 						<Box component={'div'} className={'logo-box'}>
-							<Link href={'/'}>{/* <img src="/img/logo/" alt="" /> */}</Link>
+							<Link href={'/'}>
+								<Box className="test">
+									<img src="/img/logo/logo2.png" alt="" />
+									<span style={{ color: 'white' }}>𝕰𝖕𝖎𝖈𝕽𝖎𝖉𝖊𝖘</span>
+								</Box>
+							</Link>
 						</Box>
 						<Box component={'div'} className={'router-box'}>
 							<Link href={'/'}>
-								<div>{t('Home')}</div>
+								<div className={router.pathname === '/' ? 'active-link' : ''}>{t('Home')}</div>
 							</Link>
 							<Link href={'/product'}>
-								<div>{t('Products')}</div>
+								<div className={router.pathname === '/product' ? 'active-link' : ''}>{t('Products')}</div>
 							</Link>
 							<Link href={'/agent'}>
-								<div> {t('Agents')} </div>
+								<div className={router.pathname === '/agent' ? 'active-link' : ''}>{t('Agents')}</div>
 							</Link>
 							<Link href={'/community?articleCategory=FREE'}>
-								<div> {t('Community')} </div>
+								<div className={router.pathname === '/community' ? 'active-link' : ''}>{t('Community')}</div>
 							</Link>
 							{user?._id && (
 								<Link href={'/mypage'}>
-									<div> {t('My Page')} </div>
+									<div className={router.pathname === '/mypage' ? 'active-link' : ''}>{t('My Page')}</div>
 								</Link>
 							)}
 							<Link href={'/cs'}>
-								<div> {t('CS')} </div>
+								<div className={router.pathname === '/cs' ? 'active-link' : ''}>{t('CS')}</div>
 							</Link>
 						</Box>
 						<Box component={'div'} className={'user-box'}>
@@ -206,7 +216,7 @@ const Top = () => {
 										anchorEl={logoutAnchor}
 										open={logoutOpen}
 										onClose={() => {
-											setLogoutAnchor(null);
+											setLogoutAnchor(null)
 										}}
 										sx={{ mt: '5px' }}
 									>
@@ -275,7 +285,7 @@ const Top = () => {
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
 };
 

@@ -5,22 +5,57 @@ import { Pagination, Stack, Typography } from '@mui/material';
 import ProductCard from '../product/ProductCard';
 import { Product } from '../../types/product/product';
 import { T } from '../../types/common';
+import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation'
+import { useMutation, useQuery } from '@apollo/client'
+import { GET_FAVORITES } from '../../../apollo/user/query'
+import { Message } from '../../enums/common.enum'
+import { sweetMixinErrorAlert } from '../../sweetAlert'
 
 const MyFavorites: NextPage = () => {
-	const device = useDeviceDetect();
-	const [myFavorites, setMyFavorites] = useState<Product[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 });
+	const device = useDeviceDetect()
+	const [myFavorites, setMyFavorites] = useState<Product[]>([])
+	const [total, setTotal] = useState<number>(0)
+	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 })
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT)
 
+	const {
+		loading: getFavoritesLoading,
+		data: getFavoritesData,
+		error: getFavoritesError,
+		refetch: getFavoritesRefetch,
+	} = useQuery(GET_FAVORITES, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: searchFavorites },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setMyFavorites(data?.getFavorites?.list)
+			setTotal(data?.getFavorites?.metaCounter[0]?.total ?? 0)
+		},
+	})
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
-		setSearchFavorites({ ...searchFavorites, page: value });
-	};
+		setSearchFavorites({ ...searchFavorites, page: value })
+	}
 
+	const likeProductHandler = async (user: T, id: any) => {
+		try {
+			if (!id) return
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED)
+
+			// execute likeTargetProduct Mutation
+			await likeTargetProduct({
+				variables: { input: id },
+			})
+			await getFavoritesRefetch({ input: searchFavorites })
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
+		}
+	}
 	if (device === 'mobile') {
-		return <div>Epic Rides MY FAVORITES MOBILE</div>;
+		return <div>Epic Rides MY FAVORITES MOBILE</div>
 	} else {
 		return (
 			<div id="my-favorites-page">
@@ -33,7 +68,7 @@ const MyFavorites: NextPage = () => {
 				<Stack className="favorites-list-box">
 					{myFavorites?.length ? (
 						myFavorites?.map((product: Product) => {
-							return <ProductCard product={product} myFavorites={true} />;
+							return <ProductCard product={product} myFavorites={true} likeProductHandler={likeProductHandler} />
 						})
 					) : (
 						<div className={'no-data'}>
@@ -61,8 +96,8 @@ const MyFavorites: NextPage = () => {
 					</Stack>
 				) : null}
 			</div>
-		);
+		)
 	}
-};
+}
 
 export default MyFavorites;

@@ -1,37 +1,37 @@
 import React from 'react';
-import { Stack, Typography, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { Product } from '../../types/product/product';
-import Link from 'next/link';
-import { formatterStr } from '../../utils';
-import { REACT_APP_API_URL } from '../../config';
-import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../../apollo/store';
-import IconButton from '@mui/material/IconButton';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { Stack, Typography, Box, Divider } from '@mui/material'
+import useDeviceDetect from '../../hooks/useDeviceDetect'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+import { Product } from '../../types/product/product'
+import Link from 'next/link'
+import { formatterStr } from '../../utils'
+import { REACT_APP_API_URL, topProductRank } from '../../config'
+import { useReactiveVar } from '@apollo/client'
+import { userVar } from '../../../apollo/store'
+import IconButton from '@mui/material/IconButton'
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 
 interface ProductCardType {
-	product: Product;
-	likeProductHandler?: any;
-	myFavorites?: boolean;
-	recentlyVisited?: boolean;
+	product: Product
+	likeProductHandler?: any
+	myFavorites?: boolean
+	recentlyVisited?: boolean
 }
 
 const ProductCard = (props: ProductCardType) => {
-	const { product, likeProductHandler, myFavorites, recentlyVisited } = props;
-	const device = useDeviceDetect();
-	const user = useReactiveVar(userVar);
+	const { product, likeProductHandler, myFavorites, recentlyVisited } = props
+	const device = useDeviceDetect()
+	const user = useReactiveVar(userVar)
 	const imagePath: string = product?.productImages[0]
 		? `${REACT_APP_API_URL}/${product?.productImages[0]}`
-		: '/img/banner/header1.svg';
+		: '/img/banner/header1.svg'
 
 	if (device === 'mobile') {
-		return <div>PRODUCT CARD</div>;
+		return <div>PRODUCT CARD</div>
 	} else {
 		return (
-			<Stack className="card-config">
+			<Stack className="top-card-box">
 				<Stack className="top">
 					<Link
 						href={{
@@ -39,49 +39,43 @@ const ProductCard = (props: ProductCardType) => {
 							query: { id: product?._id },
 						}}
 					>
-						<img src={imagePath} alt="" />
-					</Link>
-					{product && product?.productRank > 0 && (
-						<Box component={'div'} className={'top-badge'}>
-							<img src="/img/icons/electricity.svg" alt="" />
-							<Typography>TOP</Typography>
+						<div className="status">
+							<span>{product.productCondition}</span>
+						</div>
+
+						<Box
+							component={'div'}
+							className={'card-img'}
+							style={{ backgroundImage: `url(${REACT_APP_API_URL}/${product?.productImages[0]})` }}
+						>
+							<div>${product?.productPrice}</div>
 						</Box>
-					)}
-					<Box component={'div'} className={'price-box'}>
-						<Typography>${formatterStr(product?.productPrice)}</Typography>
-					</Box>
+					</Link>
 				</Stack>
-				<Stack className="bottom">
-					<Stack className="name-address">
-						<Stack className="name">
-							<Link
-								href={{
-									pathname: '/product/detail',
-									query: { id: product?._id },
-								}}
-							>
-								<Typography>{product.productTitle}</Typography>
-							</Link>
-						</Stack>
-						<Stack className="address">
-							<Typography>
-								{product.productAddress}, {product.productLocation}
-							</Typography>
-						</Stack>
-					</Stack>
+				<Stack className="info">
+					<strong className={'title'}>
+						{product?.productBrand} {product?.productModel}
+					</strong>
+					<p className={'desc'}>
+						{product?.productEngineCc}
+						{'cc,'} {product?.productEngine}
+					</p>
 					<Stack className="options">
-						<Stack className="option">
-							<img src="/img/icons/bed.svg" alt="" /> <Typography>{product.productBeds} bed</Typography>
-						</Stack>
-						<Stack className="option">
-							<img src="/img/icons/room.svg" alt="" /> <Typography>{product.productRooms} room</Typography>
-						</Stack>
-						<Stack className="option">
-							<img src="/img/icons/expand.svg" alt="" /> <Typography>{product.productSquare} m2</Typography>
-						</Stack>
+						<div>
+							<img src="/img/icons/hammer.svg" alt="" />
+							<span>{product?.productPower} hp</span>
+						</div>
+						<div>
+							<img src="/img/icons/gear.svg" alt="" />
+							<span>{product?.productTorque} Nm</span>
+						</div>
+						<div>
+							<img src="/img/icons/calendar.svg" alt="" />
+							<span>{product?.productYear} year</span>
+						</div>
 					</Stack>
-					<Stack className="divider"></Stack>
-					<Stack className="type-buttons">
+					<Divider sx={{ mt: '15px', mb: '17px' }} />
+					<Stack className="bott">
 						<Stack className="type">
 							<Typography
 								sx={{ fontWeight: 500, fontSize: '13px' }}
@@ -97,7 +91,7 @@ const ProductCard = (props: ProductCardType) => {
 							</Typography>
 						</Stack>
 						{!recentlyVisited && (
-							<Stack className="buttons">
+							<div className="view-like-box">
 								<IconButton color={'default'}>
 									<RemoveRedEyeIcon />
 								</IconButton>
@@ -112,13 +106,13 @@ const ProductCard = (props: ProductCardType) => {
 									)}
 								</IconButton>
 								<Typography className="view-cnt">{product?.productLikes}</Typography>
-							</Stack>
+							</div>
 						)}
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};
+}
 
 export default ProductCard;

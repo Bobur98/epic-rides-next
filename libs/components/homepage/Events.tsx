@@ -1,6 +1,67 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation, Pagination } from 'swiper';
+import WestIcon from '@mui/icons-material/West';
+import EastIcon from '@mui/icons-material/East';
+const motorcycleEventsData: EventData[] = [
+	{
+		eventTitle: 'Sturgis Motorcycle Rally',
+		city: 'Sturgis',
+		description:
+			'Join thousands of motorcycle enthusiasts in Sturgis, South Dakota for one of the largest and most famous motorcycle rallies in the world!',
+		imageSrc: '/img/events/STURGIS.JPG',
+	},
+	{
+		eventTitle: 'Daytona Bike Week',
+		city: 'Daytona Beach',
+		description:
+			'Experience the thrill and excitement of Daytona Bike Week, a ten-day event with racing, concerts, and street festivals.',
+		imageSrc: '/img/events/DAYTONA_BEACH.JPG',
+	},
+	{
+		eventTitle: 'Isle of Man TT',
+		city: 'Isle of Man',
+		description:
+			'Witness the world’s most dangerous and exhilarating motorcycle race on the public roads of the Isle of Man!',
+		imageSrc: '/img/events/ISLE_OF_MAN.JPG',
+	},
+	{
+		eventTitle: 'Laconia Motorcycle Week',
+		city: 'Laconia',
+		description:
+			'Enjoy a week-long motorcycle rally filled with bike shows, races, and scenic rides in Laconia, New Hampshire.',
+		imageSrc: '/img/events/LACONIA.JPG',
+	},
+	{
+		eventTitle: 'MotoGP Grand Prix',
+		city: 'Various Cities',
+		description:
+			'Catch the high-speed action of the MotoGP Grand Prix, featuring the world’s best riders competing on circuits around the globe.',
+		imageSrc: '/img/events/MOTOGP.JPG',
+	},
+	{
+		eventTitle: 'EICMA Motorcycle Show',
+		city: 'Milan',
+		description: 'Explore the latest in motorcycle innovation and design at the EICMA Motorcycle Show in Milan, Italy.',
+		imageSrc: '/img/events/MILAN.JPG',
+	},
+	{
+		eventTitle: 'Born Free Motorcycle Show',
+		city: 'California',
+		description:
+			'Discover custom bikes and vintage motorcycles at the Born Free Motorcycle Show in Silverado, California.',
+		imageSrc: '/img/events/CALIFORNIA.JPG',
+	},
+	{
+		eventTitle: 'Red Bull Romaniacs',
+		city: 'Sibiu',
+		description:
+			'Experience the ultimate hard enduro rally in the rugged terrain of the Carpathian Mountains in Sibiu, Romania.',
+		imageSrc: '/img/events/SIBIU.JPG',
+	},
+];
 
 interface EventData {
 	eventTitle: string;
@@ -8,34 +69,6 @@ interface EventData {
 	description: string;
 	imageSrc: string;
 }
-const eventsData: EventData[] = [
-	{
-		eventTitle: 'Paradise City Theme Park',
-		city: 'Incheon',
-		description:
-			'Experience magic and wonder in Incheon with a visit to the night-themed indoor theme park Wonderbox at Paradise City!',
-		imageSrc: '/img/events/INCHEON.webp',
-	},
-	{
-		eventTitle: 'Taebaeksan Snow Festival',
-		city: 'Seoul',
-		description: 'If you have the opportunity to travel to South Korea, do not miss the Taebaeksan Snow Festival!',
-		imageSrc: '/img/events/SEOUL.webp',
-	},
-	{
-		eventTitle: 'Suseong Lake Event',
-		city: 'Daegu',
-		description: 'The Suseong Lake Festival is a culture and arts festival held alongside Suseongmot Lake!',
-		imageSrc: '/img/events/DAEGU.webp',
-	},
-	{
-		eventTitle: 'Sand Festival',
-		city: 'Busan',
-		description:
-			'Haeundae Sand Festival, the nation’s largest eco-friendly exhibition on sand, is held at Haeundae Beach!',
-		imageSrc: '/img/events/BUSAN.webp',
-	},
-];
 
 const EventCard = ({ event }: { event: EventData }) => {
 	const device = useDeviceDetect();
@@ -53,7 +86,7 @@ const EventCard = ({ event }: { event: EventData }) => {
 					backgroundRepeat: 'no-repeat',
 				}}
 			>
-				<Box component={'div'} className={'info'}>
+				<Box component={'div'} className={'event-info'}>
 					<strong>{event?.city}</strong>
 					<span>{event?.eventTitle}</span>
 				</Box>
@@ -81,9 +114,33 @@ const Events = () => {
 						</Box>
 					</Stack>
 					<Stack className={'card-wrapper'}>
-						{eventsData.map((event: EventData) => {
-							return <EventCard event={event} key={event?.eventTitle} />;
-						})}
+						<Swiper
+							className={'events-product-swiper'}
+							slidesPerView={'auto'}
+							centeredSlides={false}
+							spaceBetween={15}
+							modules={[Autoplay, Navigation, Pagination]}
+							navigation={{
+								nextEl: '.swiper-events-next',
+								prevEl: '.swiper-events-prev',
+							}}
+							pagination={{
+								el: '.swiper-events-pagination',
+							}}
+						>
+							{motorcycleEventsData.map((event: EventData, id: number) => {
+								return (
+									<SwiperSlide className={'events-product-slide'} key={id}>
+										<EventCard event={event} key={event?.eventTitle} />;
+									</SwiperSlide>
+								);
+							})}
+						</Swiper>
+					</Stack>
+					<Stack className={'pagination-box'}>
+						<WestIcon className={'swiper-events-prev'} />
+						<div className={'swiper-events-pagination'}></div>
+						<EastIcon className={'swiper-events-next'} />
 					</Stack>
 				</Stack>
 			</Stack>

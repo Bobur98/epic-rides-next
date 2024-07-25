@@ -10,7 +10,14 @@ import { ProductsInquiry } from '../../libs/types/product/product.input';
 import { Product } from '../../libs/types/product/product';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import { Direction } from '../../libs/enums/common.enum';
+import { Direction, Message } from '../../libs/enums/common.enum'
+import { GET_PRODUCTS } from '../../apollo/user/query'
+import { useMutation, useQuery } from '@apollo/client'
+import { T } from '../../libs/types/common'
+import { ProductBrand } from '../../libs/enums/product.enum'
+import TopProductCard from '../../libs/components/homepage/TopProductCard'
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert'
+import { LIKE_TARGET_PRODUCT } from '../../apollo/user/mutation'
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,6 +39,22 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 	const [filterSortName, setFilterSortName] = useState('New');
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT) // POST METHOD like postman
+
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: searchFilter },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setProducts(data?.getProducts?.list)
+			setTotal(data?.getProducts?.metaCounter[0]?.total)
+		},
+	})
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -46,6 +69,23 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 	useEffect(() => {}, [searchFilter]);
 
 	/** HANDLERS **/
+	const likeProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return
+			if (!user._id) throw new Error(Message.SOMETHING_WENT_WRONG)
+
+			// execute likeTargetProduct Mutation
+			await likeTargetProduct({
+				variables: { input: id },
+			})
+			await getProductsRefetch({ input: initialInput })
+			await sweetTopSmallSuccessAlert('success', 800)
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
+		}
+	}
+
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
 		searchFilter.page = value;
 		await router.push(
@@ -85,6 +125,7 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 		setSortingOpen(false);
 		setAnchorEl(null);
 	};
+	console.log(products, 'PRODUCTS')
 
 	if (device === 'mobile') {
 		return <h1>PRODUCTS MOBILE</h1>;
@@ -140,7 +181,7 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 									</div>
 								) : (
 									products.map((product: Product) => {
-										return <ProductCard product={product} key={product?._id} />;
+										return <ProductCard product={product} key={product._id} likeProductHandler={likeProductHandler} />
 									})
 								)}
 							</Stack>
@@ -180,16 +221,16 @@ ProductList.defaultProps = {
 		sort: 'createdAt',
 		direction: 'DESC',
 		search: {
-			squaresRange: {
-				start: 0,
-				end: 500,
-			},
-			pricesRange: {
-				start: 0,
-				end: 2000000,
-			},
+			text: '',
+			engineRangeCc: { start: 50, end: 2500 },
+			powerRange: { start: 5, end: 500 },
+			torqueRange: { start: 10, end: 500 },
+			weightRange: { start: 50, end: 500 },
+			yearsRange: { start: 2000, end: new Date().getFullYear() },
+			pricesRange: { start: 0, end: 3000000 },
+			brandList: [] as ProductBrand[],
 		},
 	},
-};
+}
 
 export default withLayoutBasic(ProductList);

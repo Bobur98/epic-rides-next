@@ -13,18 +13,19 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 interface CommunityCardProps {
-	boardArticle: BoardArticle;
-	size?: string;
+	boardArticle: BoardArticle
+	size?: string
+	likeBoardArticleHandler: any
 }
 
 const CommunityCard = (props: CommunityCardProps) => {
-	const { boardArticle, size = 'normal' } = props;
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const user = useReactiveVar(userVar);
+	const { boardArticle, size = 'normal', likeBoardArticleHandler } = props
+	const device = useDeviceDetect()
+	const router = useRouter()
+	const user = useReactiveVar(userVar)
 	const imagePath: string = boardArticle?.articleImage
 		? `${REACT_APP_API_URL}/${boardArticle?.articleImage}`
-		: '/img/community/communityImg.png';
+		: '/img/community/community.jpg'
 
 	/** HANDLERS **/
 	const chooseArticleHandler = (e: React.SyntheticEvent, boardArticle: BoardArticle) => {
@@ -35,22 +36,22 @@ const CommunityCard = (props: CommunityCardProps) => {
 			},
 			undefined,
 			{ shallow: true },
-		);
-	};
+		)
+	}
 
 	const goMemberPage = (id: string) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
-	};
+		if (id === user?._id) router.push('/mypage')
+		else router.push(`/member?memberId=${id}`)
+	}
 
 	if (device === 'mobile') {
-		return <div>COMMUNITY CARD MOBILE</div>;
+		return <div>COMMUNITY CARD MOBILE</div>
 	} else {
 		return (
 			<Stack
 				sx={{ width: size === 'small' ? '285px' : '317px' }}
 				className="community-general-card-config"
-				onClick={(e) => chooseArticleHandler(e, boardArticle)}
+				onClick={(e: React.SyntheticEvent<Element, Event>) => chooseArticleHandler(e, boardArticle)}
 			>
 				<Stack className="image-box">
 					<img src={imagePath} alt="" className="card-img" />
@@ -59,9 +60,9 @@ const CommunityCard = (props: CommunityCardProps) => {
 					<Stack>
 						<Typography
 							className="desc"
-							onClick={(e) => {
-								e.stopPropagation();
-								goMemberPage(boardArticle?.memberData?._id as string);
+							onClick={(e: { stopPropagation: () => void }) => {
+								e.stopPropagation()
+								goMemberPage(boardArticle?.memberData?._id as string)
 							}}
 						>
 							{boardArticle?.memberData?.memberNick}
@@ -73,7 +74,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 							<RemoveRedEyeIcon />
 						</IconButton>
 						<Typography className="view-cnt">{boardArticle?.articleViews}</Typography>
-						<IconButton color={'default'}>
+						<IconButton color={'default'} onClick={(e: any) => likeBoardArticleHandler(e, user, boardArticle?._id)}>
 							{boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite ? (
 								<FavoriteIcon color={'primary'} />
 							) : (
@@ -92,8 +93,8 @@ const CommunityCard = (props: CommunityCardProps) => {
 					</Typography>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};
+}
 
 export default CommunityCard;

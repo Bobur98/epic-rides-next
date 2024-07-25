@@ -9,6 +9,12 @@ import PopularProductCard from './PopularProductCard';
 import { Product } from '../../types/product/product';
 import Link from 'next/link';
 import { ProductsInquiry } from '../../types/product/product.input';
+import { GET_PRODUCTS } from '../../../apollo/user/query';
+import { useMutation, useQuery } from '@apollo/client';
+import { T } from '../../types/common';
+import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation';
+import { Message } from '../../enums/common.enum';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 interface PopularProductsProps {
 	initialInput: ProductsInquiry;
@@ -20,7 +26,38 @@ const PopularProducts = (props: PopularProductsProps) => {
 	const [popularProducts, setPopularProducts] = useState<Product[]>([]);
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT); // POST METHOD like postman
+
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: initialInput },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setPopularProducts(data?.getProducts?.list);
+		},
+	});
 	/** HANDLERS **/
+	const likeProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			// execute likeTargetProduct Mutation
+			await likeTargetProduct({
+				variables: { input: id },
+			});
+			await getProductsRefetch({ input: initialInput });
+			await sweetTopSmallSuccessAlert('success', 800);
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
 
 	if (!popularProducts) return null;
 
@@ -42,7 +79,7 @@ const PopularProducts = (props: PopularProductsProps) => {
 							{popularProducts.map((product: Product) => {
 								return (
 									<SwiperSlide key={product._id} className={'popular-product-slide'}>
-										<PopularProductCard product={product} />
+										<PopularProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
 								);
 							})}
@@ -86,7 +123,7 @@ const PopularProducts = (props: PopularProductsProps) => {
 							{popularProducts.map((product: Product) => {
 								return (
 									<SwiperSlide key={product._id} className={'popular-product-slide'}>
-										<PopularProductCard product={product} />
+										<PopularProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
 								);
 							})}
@@ -101,7 +138,7 @@ const PopularProducts = (props: PopularProductsProps) => {
 			</Stack>
 		);
 	}
-};
+};;
 
 PopularProducts.defaultProps = {
 	initialInput: {

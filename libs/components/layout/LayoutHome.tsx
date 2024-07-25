@@ -4,7 +4,6 @@ import Head from 'next/head';
 import Top from '../Top';
 import Footer from '../Footer';
 import { Stack } from '@mui/material';
-import FiberContainer from '../common/FiberContainer';
 import HeaderFilter from '../homepage/HeaderFilter';
 import { userVar } from '../../../apollo/store';
 import { useReactiveVar } from '@apollo/client';
@@ -62,8 +61,21 @@ const withLayoutMain = (Component: any) => {
 						</Stack>
 
 						<Stack className={'header-main'}>
-							<FiberContainer />
+							<Stack className={'video-frame'}>
+								<video
+									autoPlay
+									muted
+									loop
+									playsInline
+									preload="auto"
+									style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+								>
+									<source src="/video/top_bg1.mp4" type="video/mp4" />
+								</video>
+							</Stack>
 							<Stack className={'container'}>
+								{' '}
+								<Stack className="filter-desc">Find your dream motorcycle</Stack>
 								<HeaderFilter />
 							</Stack>
 						</Stack>

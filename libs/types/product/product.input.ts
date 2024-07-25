@@ -1,75 +1,85 @@
-import { ProductLocation, ProductStatus, ProductType } from '../../enums/product.enum';
-import { Direction } from '../../enums/common.enum';
+import { ProductBrand, ProductCondition, ProductLocation, ProductStatus, ProductType } from '../../enums/product.enum'
+import { Direction } from '../../enums/common.enum'
 
 export interface ProductInput {
-	productType: ProductType;
-	productLocation: ProductLocation;
-	productAddress: string;
-	productTitle: string;
-	productPrice: number;
-	productSquare: number;
-	productBeds: number;
-	productRooms: number;
-	productImages: string[];
-	productDesc?: string;
-	productBarter?: boolean;
-	productRent?: boolean;
-	memberId?: string;
-	constructedAt?: Date;
+	productType: ProductType
+	productLocation: ProductLocation
+	productAddress: string
+	productBrand: ProductBrand
+	productModel: string
+	productYear: number
+	productEngine: string
+	productEngineCc: number
+	productPower: number
+	productDesc?: string
+	productTorque: number
+	productWeight: number
+	productPrice: number
+	productCondition: ProductCondition
+	productBarter?: boolean
+	productRent?: boolean
+	productImages: string[]
+
+	memberId?: string
 }
 
 interface PISearch {
-	memberId?: string;
-	locationList?: ProductLocation[];
-	typeList?: ProductType[];
-	roomsList?: Number[];
-	options?: string[];
-	bedsList?: Number[];
-	pricesRange?: Range;
-	periodsRange?: PeriodsRange;
-	squaresRange?: Range;
-	text?: string;
+	memberId?: string
+	locationList?: ProductLocation[]
+	typeList?: ProductType[]
+	modelList?: string[]
+	engineRange?: string
+	engineRangeCc?: Range
+	powerRange?: Range
+	torqueRange?: Range
+	options?: string[]
+	pricesRange?: Range
+	yearsRange?: YearsRange
+	weightRange?: Range
+	conditionList?: ProductCondition[]
+	brandList?: ProductBrand[]
+	text?: string
 }
 
 export interface ProductsInquiry {
-	page: number;
-	limit: number;
-	sort?: string;
-	direction?: Direction;
-	search: PISearch;
+	page: number
+	limit: number
+	sort?: string
+	direction?: Direction
+	search?: PISearch
 }
 
 interface APISearch {
-	productStatus?: ProductStatus;
+	productStatus?: ProductStatus
 }
 
 export interface AgentProductsInquiry {
-	page: number;
-	limit: number;
-	sort?: string;
-	direction?: Direction;
-	search: APISearch;
+	page: number
+	limit: number
+	sort?: string
+	direction?: Direction
+	search: APISearch
 }
 
 interface ALPISearch {
-	productStatus?: ProductStatus;
-	productLocationList?: ProductLocation[];
+	productStatus?: ProductStatus
+	productLocationList?: ProductLocation[]
 }
 
 export interface AllProductsInquiry {
-	page: number;
-	limit: number;
-	sort?: string;
-	direction?: Direction;
-	search: ALPISearch;
+	page: number
+	limit: number
+	sort?: string
+	direction?: Direction
+	search: ALPISearch
 }
 
 interface Range {
-	start: number;
-	end: number;
+	start: number
+	end: number
 }
 
-interface PeriodsRange {
-	start: Date | number;
-	end: Date | number;
+interface YearsRange {
+	start: Date | number
+	end: Date | number
 }

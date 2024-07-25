@@ -8,6 +8,12 @@ import { Autoplay, Navigation, Pagination } from 'swiper';
 import TopProductCard from './TopProductCard';
 import { ProductsInquiry } from '../../types/product/product.input';
 import { Product } from '../../types/product/product';
+import { GET_PRODUCTS } from '../../../apollo/user/query';
+import { useMutation, useQuery } from '@apollo/client';
+import { T } from '../../types/common';
+import { Message } from '../../enums/common.enum';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation';
 
 interface TopProductsProps {
 	initialInput: ProductsInquiry;
@@ -19,7 +25,38 @@ const TopProducts = (props: TopProductsProps) => {
 	const [topProducts, setTopProducts] = useState<Product[]>([]);
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT); // POST METHOD like postman
+
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: initialInput },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setTopProducts(data?.getProducts?.list);
+		},
+	});
 	/** HANDLERS **/
+	const likeProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.SOMETHING_WENT_WRONG);
+
+			// execute likeTargetProduct Mutation
+			await likeTargetProduct({
+				variables: { input: id },
+			});
+			await getProductsRefetch({ input: initialInput });
+			await sweetTopSmallSuccessAlert('success', 800);
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
 
 	if (device === 'mobile') {
 		return (
@@ -39,7 +76,7 @@ const TopProducts = (props: TopProductsProps) => {
 							{topProducts.map((product: Product) => {
 								return (
 									<SwiperSlide className={'top-product-slide'} key={product?._id}>
-										<TopProductCard product={product} />
+										<TopProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
 								);
 							})}
@@ -82,7 +119,7 @@ const TopProducts = (props: TopProductsProps) => {
 							{topProducts.map((product: Product) => {
 								return (
 									<SwiperSlide className={'top-product-slide'} key={product?._id}>
-										<TopProductCard product={product} />
+										<TopProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
 								);
 							})}
@@ -92,7 +129,7 @@ const TopProducts = (props: TopProductsProps) => {
 			</Stack>
 		);
 	}
-};
+};;
 
 TopProducts.defaultProps = {
 	initialInput: {

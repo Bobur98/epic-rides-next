@@ -104,6 +104,7 @@ export const GET_PRODUCT = gql`
 			productYear
 			productType
 			productEngine
+			productEngineCc
 			productPower
 			productTorque
 			productWeight
@@ -157,7 +158,7 @@ export const GET_PRODUCT = gql`
 			}
 		}
 	}
-`;
+`
 
 export const GET_PRODUCTS = gql`
 	query GetProducts($input: ProductsInquiryDto!) {
@@ -169,6 +170,7 @@ export const GET_PRODUCTS = gql`
 				productYear
 				productType
 				productEngine
+				productEngineCc
 				productPower
 				productTorque
 				productWeight
@@ -226,7 +228,7 @@ export const GET_PRODUCTS = gql`
 			}
 		}
 	}
-`;
+`
 
 export const GET_AGENT_PRODUCTS = gql`
 	query GetAgentProducts($input: AgentProductsInquiryDto!) {
@@ -238,6 +240,7 @@ export const GET_AGENT_PRODUCTS = gql`
 				productYear
 				productType
 				productEngine
+				productEngineCc
 				productPower
 				productTorque
 				productWeight
@@ -264,7 +267,7 @@ export const GET_AGENT_PRODUCTS = gql`
 			}
 		}
 	}
-`;
+`
 
 export const GET_FAVORITES = gql`
 	query GetFavorites($input: OrdinaryInquiryDto!) {
@@ -276,6 +279,7 @@ export const GET_FAVORITES = gql`
 				productYear
 				productType
 				productEngine
+				productEngineCc
 				productPower
 				productTorque
 				productWeight
@@ -343,7 +347,7 @@ export const GET_FAVORITES = gql`
 			}
 		}
 	}
-`;
+`
 
 export const GET_VISITED = gql`
 	query GetVisited($input: OrdinaryInquiryDto!) {
@@ -355,6 +359,7 @@ export const GET_VISITED = gql`
 				productYear
 				productType
 				productEngine
+				productEngineCc
 				productPower
 				productTorque
 				productWeight
@@ -422,7 +427,7 @@ export const GET_VISITED = gql`
 			}
 		}
 	}
-`;
+`
 
 /**************************
  *      BOARD-ARTICLE     *
@@ -476,7 +481,7 @@ export const GET_BOARD_ARTICLE = gql`
 			}
 		}
 	}
-`;
+`
 
 export const GET_BOARD_ARTICLES = gql`
 	query GetBoardArticles($input: BoardArticlesInquiryDto!) {
@@ -531,57 +536,7 @@ export const GET_BOARD_ARTICLES = gql`
 			}
 		}
 	}
-`;
-
-/**************************
- *         COMMENT        *
- *************************/
-
-export const GET_COMMENTS = gql`
-	query GetComments($input: CommentsInquiryDto!) {
-		getComments(input: $input) {
-			list {
-				_id
-				commentStatus
-				commentGroup
-				commentContent
-				commentRefId
-				memberId
-				createdAt
-				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberProducts
-					memberArticles
-					memberFollowings
-					memberPoints
-					memberLikes
-					memberViews
-					memberComments
-					memberRank
-					memberWarnings
-					memberBlocks
-					createdAt
-					updatedAt
-					deletedAt
-					accessToken
-				}
-			}
-			metaCounter {
-				total
-			}
-		}
-	}
-`;
+`
 
 /**************************
  *         FOLLOW        *
@@ -642,7 +597,7 @@ export const GET_MEMBER_FOLLOWERS = gql`
 			}
 		}
 	}
-`;
+`
 
 export const GET_MEMBER_FOLLOWINGS = gql`
 	query GetMemberFollowings($input: FollowInquiryDto!) {
@@ -695,4 +650,193 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 			}
 		}
 	}
-`;
+`
+/**************************
+ *         FAQ        *
+ *************************/
+export const GET_FAQ = gql`
+	query GetFaq($input: String!) {
+		getFaq(input: $input) {
+			_id
+			faqQuestion
+			faqAnswer
+			faqType
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberArticles
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				createdAt
+				updatedAt
+				deletedAt
+				accessToken
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
+				meFollowed {
+					followingId
+					followerId
+					myFollowing
+				}
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`
+export const GET_FAQS = gql`
+	query GetFaqs($input: FaqInquiryDto!) {
+		getFaqs(input: $input) {
+			list {
+				_id
+				faqQuestion
+				faqAnswer
+				faqType
+				createdAt
+				updatedAt
+				memberData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberProducts
+					memberArticles
+					memberFollowings
+					memberPoints
+					memberLikes
+					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
+					createdAt
+					updatedAt
+					deletedAt
+					accessToken
+					meLiked {
+						memberId
+						likeRefId
+						myFavorite
+					}
+					meFollowed {
+						followingId
+						followerId
+						myFollowing
+					}
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`
+
+/**************************
+ *         NOTICE        *
+ *************************/
+export const GET_NOTICE = gql`
+	query GetNotice($input: String!) {
+		getNotice(input: $input) {
+			_id
+			noticeType
+			noticeContent
+			noticeStatus
+			createdAt
+			updatedAt
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberArticles
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				createdAt
+				updatedAt
+				deletedAt
+				accessToken
+			}
+		}
+	}
+`
+export const GET_NOTICES = gql`
+	query GetNotices($input: NoticeInquiryDto!) {
+		getNotices(input: $input) {
+			list {
+				_id
+				noticeType
+				noticeContent
+				noticeStatus
+				createdAt
+				updatedAt
+				memberData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberProducts
+					memberArticles
+					memberFollowings
+					memberPoints
+					memberLikes
+					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
+					createdAt
+					updatedAt
+					deletedAt
+					accessToken
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`

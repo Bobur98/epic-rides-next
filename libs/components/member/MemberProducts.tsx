@@ -7,32 +7,49 @@ import { Product } from '../../types/product/product';
 import { ProductsInquiry } from '../../types/product/product.input';
 import { T } from '../../types/common';
 import { useRouter } from 'next/router';
+import { GET_PRODUCTS } from '../../../apollo/user/query'
+import { useQuery } from '@apollo/client'
 
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const { memberId } = router.query;
-	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>({ ...initialInput });
-	const [agentProducts, setAgentProducts] = useState<Product[]>([]);
-	const [total, setTotal] = useState<number>(0);
+	const device = useDeviceDetect()
+	const router = useRouter()
+	const { memberId } = router.query
+	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>({ ...initialInput })
+	const [agentProducts, setAgentProducts] = useState<Product[]>([])
+	const [total, setTotal] = useState<number>(0)
 
 	/** APOLLO REQUESTS **/
-
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: searchFilter },
+		skip: !searchFilter?.search?.memberId,
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setAgentProducts(data?.getProducts?.list)
+			setTotal(data?.getProducts?.metaCounter[0]?.total ?? 0)
+		},
+	})
 	/** LIFECYCLES **/
-	useEffect(() => {}, [searchFilter]);
+	useEffect(() => {
+		getProductsRefetch().then()
+	}, [searchFilter])
 
 	useEffect(() => {
-		if (memberId)
-			setSearchFilter({ ...initialInput, search: { ...initialInput.search, memberId: memberId as string } });
-	}, [memberId]);
+		if (memberId) setSearchFilter({ ...initialInput, search: { ...initialInput.search, memberId: memberId as string } })
+	}, [memberId])
 
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
-		setSearchFilter({ ...searchFilter, page: value });
-	};
+		setSearchFilter({ ...searchFilter, page: value })
+	}
 
 	if (device === 'mobile') {
-		return <div>Epic Rides PRODUCTS MOBILE</div>;
+		return <div>Epic Rides PRODUCTS MOBILE</div>
 	} else {
 		return (
 			<div id="member-products-page">
@@ -58,7 +75,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 							</div>
 						)}
 						{agentProducts?.map((product: Product) => {
-							return <ProductCard product={product} memberPage={true} key={product?._id} />;
+							return <ProductCard product={product} memberPage={true} key={product?._id} />
 						})}
 
 						{agentProducts.length !== 0 && (
@@ -80,9 +97,9 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 					</Stack>
 				</Stack>
 			</div>
-		);
+		)
 	}
-};
+}
 
 MyProducts.defaultProps = {
 	initialInput: {

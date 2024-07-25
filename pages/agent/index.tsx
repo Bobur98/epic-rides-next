@@ -9,6 +9,9 @@ import AgentCard from '../../libs/components/common/AgentCard';
 import { useRouter } from 'next/router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Member } from '../../libs/types/member/member';
+import { useQuery } from '@apollo/client'
+import { GET_AGENTS } from '../../apollo/user/query'
+import { T } from '../../libs/types/common'
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,6 +35,20 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 	const [searchText, setSearchText] = useState<string>('');
 
 	/** APOLLO REQUESTS **/
+		const {
+			loading: getAgentsLoading,
+			data: getAgentsData,
+			error: getAgentsError,
+			refetch: getAgentsRefetch,
+		} = useQuery(GET_AGENTS, {
+			fetchPolicy: 'network-only', // by default cache-first
+			variables: { input: searchFilter },
+			notifyOnNetworkStatusChange: true,
+			onCompleted: (data: T) => {
+				setAgents(data?.getAgents?.list)
+				setTotal(data?.getAgents?.metaCounter[0]?.total)
+			},
+		})
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.input) {

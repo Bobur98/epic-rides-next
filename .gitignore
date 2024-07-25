@@ -34,3 +34,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# epic-rides specifiv
+.vscode/
+/build
+/.idea
+# yarn.lock
+
+# env ignores
+.env.development
+.env.local
+.env

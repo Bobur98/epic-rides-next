@@ -156,7 +156,7 @@ export const ProductPanelList = (props: ProductPanelListType) => {
 													</div>
 												</Link>
 												<Link href={`/product/detail?id=${product?._id}`}>
-													<div>{product.productTitle}</div>
+													<div>{product.productBrand}</div>
 												</Link>
 											</Stack>
 										</TableCell>

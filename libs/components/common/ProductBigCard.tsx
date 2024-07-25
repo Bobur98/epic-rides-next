@@ -10,73 +10,97 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { useRouter } from 'next/router';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import Link from 'next/link'
 
 interface ProductBigCardProps {
-	product: Product;
+	product: Product
+	likeProductHandler: any
 }
 
 const ProductBigCard = (props: ProductBigCardProps) => {
-	const { product } = props;
-	const device = useDeviceDetect();
-	const user = useReactiveVar(userVar);
-	const router = useRouter();
+	const { product, likeProductHandler } = props
+	const device = useDeviceDetect()
+	const user = useReactiveVar(userVar)
+	const router = useRouter()
 
 	/** HANDLERS **/
 	const goProductDetatilPage = (productId: string) => {
-		router.push(`/product/detail?id=${productId}`);
-	};
+		router.push(`/product/detail?id=${productId}`)
+	}
 
 	if (device === 'mobile') {
-		return <div>APARTMEND BIG CARD</div>;
+		return <div>APARTMEND BIG CARD</div>
 	} else {
 		return (
 			<Stack className="product-big-card-box" onClick={() => goProductDetatilPage(product?._id)}>
-				<Box
-					component={'div'}
-					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${product?.productImages?.[0]})` }}
-				>
-					{product?.productRank && product?.productRank >= 50 && (
-						<div className={'status'}>
-							<img src="/img/icons/electricity.svg" alt="" />
-							<span>top</span>
+				<Stack className="top">
+					<Link
+						href={{
+							pathname: '/product/detail',
+							query: { id: product?._id },
+						}}
+					>
+						<div className="status">
+							<span>{product.productCondition}</span>
 						</div>
-					)}
 
-					<div className={'price'}>${formatterStr(product?.productPrice)}</div>
-				</Box>
-				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{product?.productTitle}</strong>
-					<p className={'desc'}>{product?.productAddress}</p>
-					<div className={'options'}>
+						<Box
+							component={'div'}
+							className={'card-img'}
+							style={{ backgroundImage: `url(${REACT_APP_API_URL}/${product?.productImages[0]})` }}
+						>
+							<div>${product?.productPrice}</div>
+						</Box>
+					</Link>
+				</Stack>
+				<Stack className="info">
+					<strong className={'title'}>
+						{product?.productBrand} {product?.productModel}
+					</strong>
+					<p className={'desc'}>
+						{product?.productEngineCc}
+						{'cc,'} {product?.productEngine}
+					</p>
+					<Stack className="options">
 						<div>
-							<img src="/img/icons/bed.svg" alt="" />
-							<span>{product?.productBeds} bed</span>
+							<img src="/img/icons/hammer.svg" alt="" />
+							<span>{product?.productPower} hp</span>
 						</div>
 						<div>
-							<img src="/img/icons/room.svg" alt="" />
-							<span>{product?.productRooms} rooms</span>
+							<img src="/img/icons/gear.svg" alt="" />
+							<span>{product?.productTorque} Nm</span>
 						</div>
 						<div>
-							<img src="/img/icons/expand.svg" alt="" />
-							<span>{product?.productSquare} m2</span>
+							<img src="/img/icons/calendar.svg" alt="" />
+							<span>{product?.productYear} year</span>
 						</div>
-					</div>
+					</Stack>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<div>
-							{product?.productRent ? <p>Rent</p> : <span>Rent</span>}
-							{product?.productBarter ? <p>Barter</p> : <span>Barter</span>}
-						</div>
-						<div className="buttons-box">
+					<Stack className="bottom">
+						<Stack className="type">
+							<Typography
+								sx={{ fontWeight: 500, fontSize: '13px' }}
+								className={product.productRent ? '' : 'disabled-type'}
+							>
+								Rent
+							</Typography>
+							<Typography
+								sx={{ fontWeight: 500, fontSize: '13px' }}
+								className={product.productBarter ? '' : 'disabled-type'}
+							>
+								Barter
+							</Typography>
+						</Stack>
+						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
 							</IconButton>
 							<Typography className="view-cnt">{product?.productViews}</Typography>
 							<IconButton
 								color={'default'}
-								onClick={(e) => {
-									e.stopPropagation();
+								onClick={(e: { stopPropagation: () => void }) => {
+									e.stopPropagation()
+									likeProductHandler(user, product?._id)
 								}}
 							>
 								{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
@@ -87,11 +111,11 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 							</IconButton>
 							<Typography className="view-cnt">{product?.productLikes}</Typography>
 						</div>
-					</div>
-				</Box>
+					</Stack>
+				</Stack>
 			</Stack>
-		);
+		)
 	}
-};
+}
 
 export default ProductBigCard;

@@ -31,42 +31,42 @@ const withLayoutBasic = (Component: any) => {
 				case '/product':
 					title = 'Product Search';
 					desc = 'We are glad to see you again!';
-					bgImage = '/img/banner/products.png';
+					bgImage = '/img/banner/bgProduct.jpg'
 					break;
 				case '/agent':
 					title = 'Agents';
 					desc = 'Home / For Rent';
-					bgImage = '/img/banner/agents.webp';
+					bgImage = '/img/banner/agentsBg2.jpg'
 					break;
 				case '/agent/detail':
 					title = 'Agent Page';
 					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/banner/bgProduct2.jpg'
 					break;
 				case '/mypage':
 					title = 'my page';
 					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header1.svg';
+					bgImage = '/img/banner/bgProduct3.jpg'
 					break;
 				case '/community':
 					title = 'Community';
 					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/banner/communityBg2.jpg'
 					break;
 				case '/community/detail':
 					title = 'Community Detail';
 					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/banner/communityBg.jpg'
 					break;
 				case '/cs':
 					title = 'CS';
 					desc = 'We are glad to see you again!';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/banner/bgProduct3.jpg'
 					break;
 				case '/account/join':
 					title = 'Login/Signup';
 					desc = 'Authentication Process';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/banner/bgProduct3.jpg'
 					setAuthHeader(true);
 					break;
 				case '/member':
