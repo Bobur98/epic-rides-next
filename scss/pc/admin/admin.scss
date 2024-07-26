@@ -21,9 +21,18 @@
       display: flex;
       flex-direction: row;
       padding: 16px 0;
-      img {
-        width: 90px;
-        height: 90px;
+      .test{
+        display: flex;
+        flex-direction: column;
+        span {
+          color: #b72136;
+        }
+        img {
+          width: 90px;
+          height: 90px;
+      							filter: invert(15%) sepia(77%) saturate(7474%) hue-rotate(-15deg) brightness(76%) contrast(107%);
+
+        }
       }
     }
     .user {

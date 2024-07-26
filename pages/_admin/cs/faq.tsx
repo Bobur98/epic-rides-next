@@ -13,11 +13,46 @@ import TablePagination from '@mui/material/TablePagination';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { FaqArticlesPanelList } from '../../../libs/components/admin/cs/FaqList';
+import { useQuery } from '@apollo/client'
+import { GET_FAQS } from '../../../apollo/user/query'
+import { useRouter } from 'next/router'
+import { T } from '../../../libs/types/common'
 
-const FaqArticles: NextPage = (props: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
+interface FaqArticlesProps {
+	initialInput?: {
+		page?: number
+		limit?: number
+		faqType?: string
+	}
+}
+
+const FaqArticles: NextPage<FaqArticlesProps> = ({ initialInput, ...props }) => {
+	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([])
+	const router = useRouter()
+	const [type, setType] = useState<string>('MOTORCYCLE')
+	const [searchFilter, setSearchFilter] = useState<any>(
+		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
+	)
+
+	const [faqs, setFaqs] = useState<any[]>([])
+	const [total, setTotal] = useState<number>(0)
+	const dense = false
 
 	/** APOLLO REQUESTS **/
+	const {
+		loading: getFaqsLoading,
+		data: getFaqsData,
+		refetch: getFaqsRefetch,
+	} = useQuery(GET_FAQS, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: { ...initialInput, faqType: type.toUpperCase() } },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setFaqs(data?.getFaqs?.list || [])
+			setTotal(data?.getFaqs?.metaCounter[0]?.total || 0)
+		},
+	})
+
 	/** LIFECYCLES **/
 	/** HANDLERS **/
 
@@ -99,7 +134,7 @@ const FaqArticles: NextPage = (props: any) => {
 							<Divider />
 						</Box>
 						<FaqArticlesPanelList
-							// dense={dense}
+							dense={dense}
 							// membersData={membersData}
 							// searchMembers={searchMembers}
 							anchorEl={anchorEl}
@@ -121,7 +156,15 @@ const FaqArticles: NextPage = (props: any) => {
 				</Box>
 			</Box>
 		</Box>
-	);
-};
+	)
+}
+
+FaqArticles.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 9,
+		faqType: 'MOTORCYCLE',
+	},
+}
 
 export default withAdminLayout(FaqArticles);

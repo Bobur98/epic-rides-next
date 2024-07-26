@@ -1,5 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
+import React from 'react'
+import Link from 'next/link'
 import {
 	TableCell,
 	TableHead,
@@ -11,32 +11,32 @@ import {
 	Menu,
 	Fade,
 	MenuItem,
-} from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import { Stack } from '@mui/material';
-import { Product } from '../../../types/product/product';
-import { REACT_APP_API_URL } from '../../../config';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Typography from '@mui/material/Typography';
-import { ProductStatus } from '../../../enums/product.enum';
+} from '@mui/material'
+import Avatar from '@mui/material/Avatar'
+import { Stack } from '@mui/material'
+import { REACT_APP_API_URL } from '../../../config'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Typography from '@mui/material/Typography'
+import { Product } from '../../../types/product/product'
+import { ProductStatus } from '../../../enums/product.enum'
 
 interface Data {
-	id: string;
-	title: string;
-	price: string;
-	agent: string;
-	location: string;
-	type: string;
-	status: string;
+	id: string
+	title: string
+	price: string
+	agent: string
+	location: string
+	type: string
+	status: string
 }
 
-type Order = 'asc' | 'desc';
+type Order = 'asc' | 'desc'
 
 interface HeadCell {
-	disablePadding: boolean;
-	id: keyof Data;
-	label: string;
-	numeric: boolean;
+	disablePadding: boolean
+	id: keyof Data
+	label: string
+	numeric: boolean
 }
 
 const headCells: readonly HeadCell[] = [
@@ -82,19 +82,19 @@ const headCells: readonly HeadCell[] = [
 		disablePadding: false,
 		label: 'STATUS',
 	},
-];
+]
 
 interface EnhancedTableProps {
-	numSelected: number;
-	onRequestSort: (event: React.MouseEvent<unknown>, product: keyof Data) => void;
-	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	order: Order;
-	orderBy: string;
-	rowCount: number;
+	numSelected: number
+	onRequestSort: (event: React.MouseEvent<unknown>, product: keyof Data) => void
+	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void
+	order: Order
+	orderBy: string
+	rowCount: number
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-	const { onSelectAllClick } = props;
+	const { onSelectAllClick } = props
 
 	return (
 		<TableHead>
@@ -110,21 +110,21 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 				))}
 			</TableRow>
 		</TableHead>
-	);
+	)
 }
 
 interface ProductPanelListType {
-	products: Product[];
-	anchorEl: any;
-	menuIconClickHandler: any;
-	menuIconCloseHandler: any;
-	updateProductHandler: any;
-	removeProductHandler: any;
+	products: Product[]
+	anchorEl: any
+	menuIconClickHandler: any
+	menuIconCloseHandler: any
+	updateProductHandler: any
+	removeProductHandler: any
 }
 
 export const ProductPanelList = (props: ProductPanelListType) => {
 	const { products, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateProductHandler, removeProductHandler } =
-		props;
+		props
 
 	return (
 		<Stack>
@@ -143,22 +143,31 @@ export const ProductPanelList = (props: ProductPanelListType) => {
 
 						{products.length !== 0 &&
 							products.map((product: Product, index: number) => {
-								const productImage = `${REACT_APP_API_URL}/${product?.productImages[0]}`;
+								const productImage = `${REACT_APP_API_URL}/${product?.productImages[0]}`
 
 								return (
 									<TableRow hover key={product?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 										<TableCell align="left">{product._id}</TableCell>
 										<TableCell align="left" className={'name'}>
-											<Stack direction={'row'}>
-												<Link href={`/product/detail?id=${product?._id}`}>
+											{product.productStatus === ProductStatus.ACTIVE ? (
+												<Stack direction={'row'}>
+													<Link href={`/product/detail?id=${product?._id}`}>
+														<div>
+															<Avatar alt="Remy Sharp" src={productImage} sx={{ ml: '2px', mr: '10px' }} />
+														</div>
+													</Link>
+													<Link href={`/product/detail?id=${product?._id}`}>
+														<div>{product.productBrand}</div>
+													</Link>
+												</Stack>
+											) : (
+												<Stack direction={'row'}>
 													<div>
 														<Avatar alt="Remy Sharp" src={productImage} sx={{ ml: '2px', mr: '10px' }} />
 													</div>
-												</Link>
-												<Link href={`/product/detail?id=${product?._id}`}>
-													<div>{product.productBrand}</div>
-												</Link>
-											</Stack>
+													<div style={{ marginTop: '10px' }}>{product.productBrand}</div>
+												</Stack>
+											)}
 										</TableCell>
 										<TableCell align="center">{product.productPrice}</TableCell>
 										<TableCell align="center">{product.memberData?.memberNick}</TableCell>
@@ -213,11 +222,11 @@ export const ProductPanelList = (props: ProductPanelListType) => {
 											)}
 										</TableCell>
 									</TableRow>
-								);
+								)
 							})}
 					</TableBody>
 				</Table>
 			</TableContainer>
 		</Stack>
-	);
-};
+	)
+}

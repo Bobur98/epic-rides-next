@@ -5,7 +5,7 @@ import MenuList from '../admin/AdminMenuList';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import { Menu, MenuItem } from '@mui/material';
+import { Link, Menu, MenuItem } from '@mui/material'
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
 import Avatar from '@mui/material/Avatar';
@@ -141,9 +141,12 @@ const withAdminLayout = (Component: ComponentType) => {
 						className="aside"
 					>
 						<Toolbar sx={{ flexDirection: 'column', alignItems: 'flexStart' }}>
-							<Stack className={'logo-box'}>
-								<img src={'/img/logo/logoText.svg'} alt={'logo'} />
-							</Stack>
+							<Box component={'div'} className={'logo-box'}>
+								<Box className="test">
+									<img src="/img/logo/logo2.png" alt="" />
+									<span>𝕰𝖕𝖎𝖈𝕽𝖎𝖉𝖊𝖘</span>
+								</Box>
+							</Box>
 
 							<Stack
 								className="user"
@@ -177,7 +180,7 @@ const withAdminLayout = (Component: ComponentType) => {
 					</Box>
 				</Box>
 			</main>
-		);
+		)
 	};
 };
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
+import React from 'react'
+import Link from 'next/link'
 import {
 	Box,
 	Button,
@@ -13,34 +13,34 @@ import {
 	TableHead,
 	TableRow,
 	Tooltip,
-} from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import Avatar from '@mui/material/Avatar';
-import Stack from '@mui/material/Stack';
-import OpenInBrowserRoundedIcon from '@mui/icons-material/OpenInBrowserRounded';
-import Moment from 'react-moment';
-import { BoardArticle } from '../../../types/board-article/board-article';
-import { REACT_APP_API_URL } from '../../../config';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Typography from '@mui/material/Typography';
-import { BoardArticleStatus } from '../../../enums/board-article.enum';
+} from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import Avatar from '@mui/material/Avatar'
+import Stack from '@mui/material/Stack'
+import OpenInBrowserRoundedIcon from '@mui/icons-material/OpenInBrowserRounded'
+import Moment from 'react-moment'
+import { BoardArticle } from '../../../types/board-article/board-article'
+import { REACT_APP_API_URL } from '../../../config'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Typography from '@mui/material/Typography'
+import { BoardArticleStatus } from '../../../enums/board-article.enum'
 
 interface Data {
-	category: string;
-	title: string;
-	writer: string;
-	register: string;
-	view: number;
-	like: number;
-	status: string;
-	article_id: string;
+	category: string
+	title: string
+	writer: string
+	register: string
+	view: number
+	like: number
+	status: string
+	article_id: string
 }
 
 interface HeadCell {
-	disablePadding: boolean;
-	id: keyof Data;
-	label: string;
-	numeric: boolean;
+	disablePadding: boolean
+	id: keyof Data
+	label: string
+	numeric: boolean
 }
 
 const headCells: readonly HeadCell[] = [
@@ -92,13 +92,13 @@ const headCells: readonly HeadCell[] = [
 		disablePadding: false,
 		label: 'STATUS',
 	},
-];
+]
 
 interface EnhancedTableProps {
-	numSelected: number;
-	onRequestSort: (event: React.MouseEvent<unknown>, product: keyof Data) => void;
-	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	rowCount: number;
+	numSelected: number
+	onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
+	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void
+	rowCount: number
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
@@ -116,21 +116,21 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 				))}
 			</TableRow>
 		</TableHead>
-	);
+	)
 }
 
 interface CommunityArticleListProps {
-	articles: BoardArticle[];
-	anchorEl: any;
-	menuIconClickHandler: any;
-	menuIconCloseHandler: any;
-	updateArticleHandler: any;
-	removeArticleHandler: any;
+	articles: BoardArticle[]
+	anchorEl: any
+	menuIconClickHandler: any
+	menuIconCloseHandler: any
+	updateArticleHandler: any
+	removeArticleHandler: any
 }
 
 const CommunityArticleList = (props: CommunityArticleListProps) => {
 	const { articles, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateArticleHandler, removeArticleHandler } =
-		props;
+		props
 
 	return (
 		<Stack>
@@ -154,16 +154,18 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 									<TableCell align="left">
 										<Box component={'div'}>
 											{article.articleTitle}
-											<Link
-												href={`/community/detail?articleCategory=${article.articleCategory}&id=${article._id}`}
-												className={'img_box'}
-											>
-												<IconButton className="btn_window">
-													<Tooltip title={'Open window'}>
-														<OpenInBrowserRoundedIcon />
-													</Tooltip>
-												</IconButton>
-											</Link>
+											{article.articleStatus === BoardArticleStatus.ACTIVE && (
+												<Link
+													href={`/community/detail?articleCategory=${article.articleCategory}&id=${article._id}`}
+													className={'img_box'}
+												>
+													<IconButton className="btn_window">
+														<Tooltip title={'Open window'}>
+															<OpenInBrowserRoundedIcon />
+														</Tooltip>
+													</IconButton>
+												</Link>
+											)}
 										</Box>
 									</TableCell>
 									<TableCell align="left">{article.articleCategory}</TableCell>
@@ -187,7 +189,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 										<Moment format={'DD.MM.YY HH:mm'}>{article?.createdAt}</Moment>
 									</TableCell>
 									<TableCell align="center">
-										{article.articleStatus === 'DELETE' ? (
+										{article.articleStatus === BoardArticleStatus.DELETE ? (
 											<Button
 												variant="outlined"
 												sx={{ p: '3px', border: 'none', ':hover': { border: '1px solid #000000' } }}
@@ -234,7 +236,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 				</Table>
 			</TableContainer>
 		</Stack>
-	);
-};
+	)
+}
 
-export default CommunityArticleList;
+export default CommunityArticleList

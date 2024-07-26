@@ -1,92 +1,124 @@
-import React, { useEffect, useState } from 'react';
-import type { NextPage } from 'next';
-import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { Box, List, ListItem, Stack } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
-import TablePagination from '@mui/material/TablePagination';
-import { ProductPanelList } from '../../../libs/components/admin/products/ProductList';
-import { AllProductsInquiry } from '../../../libs/types/product/product.input';
-import { Product } from '../../../libs/types/product/product';
-import { ProductLocation, ProductStatus } from '../../../libs/enums/product.enum';
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
-import { ProductUpdate } from '../../../libs/types/product/product.update';
+import React, { useEffect, useState } from 'react'
+import type { NextPage } from 'next'
+import withAdminLayout from '../../../libs/components/layout/LayoutAdmin'
+import { Box, List, ListItem, Stack } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import { TabContext } from '@mui/lab'
+import TablePagination from '@mui/material/TablePagination'
+import { ProductPanelList } from '../../../libs/components/admin/products/ProductList'
+import { AllProductsInquiry } from '../../../libs/types/product/product.input'
+import { Product } from '../../../libs/types/product/product'
+import { ProductLocation, ProductStatus } from '../../../libs/enums/product.enum'
+import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
+import { ProductUpdate } from '../../../libs/types/product/product.update'
+import { useMutation, useQuery } from '@apollo/client'
+import { REMOVE_PRODUCT_BY_ADMIN, UPDATE_PRODUCT_BY_ADMIN } from '../../../apollo/admin/mutation'
+import { GET_ALL_PRODUCTS_BY_ADMIN } from '../../../apollo/admin/query'
+import { T } from '../../../libs/types/common'
 
 const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
-	const [productsInquiry, setProductsInquiry] = useState<AllProductsInquiry>(initialInquiry);
-	const [products, setProducts] = useState<Product[]>([]);
-	const [productsTotal, setProductsTotal] = useState<number>(0);
+	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([])
+	const [productsInquiry, setProductsInquiry] = useState<AllProductsInquiry>(initialInquiry)
+	const [products, setProducts] = useState<Product[]>([])
+	const [productsTotal, setProductsTotal] = useState<number>(0)
 	const [value, setValue] = useState(
 		productsInquiry?.search?.productStatus ? productsInquiry?.search?.productStatus : 'ALL',
-	);
-	const [searchType, setSearchType] = useState('ALL');
+	)
+	const [searchType, setSearchType] = useState('ALL')
 
 	/** APOLLO REQUESTS **/
+	const [updateProductByAdmin] = useMutation(UPDATE_PRODUCT_BY_ADMIN)
+	const [removeProductByAdmin] = useMutation(REMOVE_PRODUCT_BY_ADMIN)
+
+	const {
+		loading: getAllProductsByAdminLoading,
+		data: getAllProductsByAdminData,
+		error: getAllProductsByAdminError,
+		refetch: getAllProductsByAdminRefetch,
+	} = useQuery(GET_ALL_PRODUCTS_BY_ADMIN, {
+		fetchPolicy: 'network-only', // by default cache-first
+		variables: { input: productsInquiry },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setProducts(data?.getAllProductsByAdmin?.list)
+			setProductsTotal(data?.getAllProductsByAdmin?.metaCounter[0]?.total ?? 0)
+		},
+	})
 
 	/** LIFECYCLES **/
-	useEffect(() => {}, [productsInquiry]);
+	useEffect(() => {
+		getAllProductsByAdminRefetch({ input: productsInquiry }).then()
+	}, [productsInquiry])
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {
-		productsInquiry.page = newPage + 1;
-		setProductsInquiry({ ...productsInquiry });
-	};
+		productsInquiry.page = newPage + 1
+		await getAllProductsByAdminRefetch({ input: productsInquiry })
+		setProductsInquiry({ ...productsInquiry })
+	}
 
 	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		productsInquiry.limit = parseInt(event.target.value, 10);
-		productsInquiry.page = 1;
-		setProductsInquiry({ ...productsInquiry });
-	};
+		productsInquiry.limit = parseInt(event.target.value, 10)
+		productsInquiry.page = 1
+		await getAllProductsByAdminRefetch({ input: productsInquiry })
+		setProductsInquiry({ ...productsInquiry })
+	}
 
 	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
+		const tempAnchor = anchorEl.slice()
+		tempAnchor[index] = e.currentTarget
+		setAnchorEl(tempAnchor)
+	}
 
 	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
+		setAnchorEl([])
+	}
 
 	const tabChangeHandler = async (event: any, newValue: string) => {
-		setValue(newValue);
+		setValue(newValue)
 
-		setProductsInquiry({ ...productsInquiry, page: 1, sort: 'createdAt' });
+		setProductsInquiry({ ...productsInquiry, page: 1, sort: 'createdAt' })
 
 		switch (newValue) {
 			case 'ACTIVE':
-				setProductsInquiry({ ...productsInquiry, search: { productStatus: ProductStatus.ACTIVE } });
-				break;
+				setProductsInquiry({ ...productsInquiry, search: { productStatus: ProductStatus.ACTIVE } })
+				break
 			case 'SOLD':
-				setProductsInquiry({ ...productsInquiry, search: { productStatus: ProductStatus.SOLD } });
-				break;
+				setProductsInquiry({ ...productsInquiry, search: { productStatus: ProductStatus.SOLD } })
+				break
 			case 'DELETE':
-				setProductsInquiry({ ...productsInquiry, search: { productStatus: ProductStatus.DELETE } });
-				break;
+				setProductsInquiry({ ...productsInquiry, search: { productStatus: ProductStatus.DELETE } })
+				break
 			default:
-				delete productsInquiry?.search?.productStatus;
-				setProductsInquiry({ ...productsInquiry });
-				break;
+				delete productsInquiry?.search?.productStatus
+				setProductsInquiry({ ...productsInquiry })
+				break
 		}
-	};
+	}
 
 	const removeProductHandler = async (id: string) => {
 		try {
 			if (await sweetConfirmAlert('Are you sure to remove?')) {
+				await removeProductByAdmin({
+					variables: {
+						input: id,
+					},
+				})
+
+				await getAllProductsByAdminRefetch({ input: productsInquiry })
 			}
-			menuIconCloseHandler();
+			menuIconCloseHandler()
 		} catch (err: any) {
-			sweetErrorHandling(err).then();
+			sweetErrorHandling(err).then()
 		}
-	};
+	}
 
 	const searchTypeHandler = async (newValue: string) => {
 		try {
-			setSearchType(newValue);
+			setSearchType(newValue)
 
 			if (newValue !== 'ALL') {
 				setProductsInquiry({
@@ -97,25 +129,31 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 						...productsInquiry.search,
 						productLocationList: [newValue as ProductLocation],
 					},
-				});
+				})
 			} else {
-				delete productsInquiry?.search?.productLocationList;
-				setProductsInquiry({ ...productsInquiry });
+				delete productsInquiry?.search?.productLocationList
+				setProductsInquiry({ ...productsInquiry })
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
+			console.log('searchTypeHandler: ', err.message)
 		}
-	};
+	}
 
 	const updateProductHandler = async (updateData: ProductUpdate) => {
 		try {
-			console.log('+updateData: ', updateData);
-			menuIconCloseHandler();
+			console.log('+updateData: ', updateData)
+			await updateProductByAdmin({
+				variables: {
+					input: updateData,
+				},
+			})
+			menuIconCloseHandler()
+			await getAllProductsByAdminRefetch({ input: productsInquiry })
 		} catch (err: any) {
-			menuIconCloseHandler();
-			sweetErrorHandling(err).then();
+			menuIconCloseHandler()
+			sweetErrorHandling(err).then()
 		}
-	};
+	}
 
 	return (
 		<Box component={'div'} className={'content'}>
@@ -128,28 +166,28 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 						<Box component={'div'}>
 							<List className={'tab-menu'}>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ALL')}
+									onClick={(e: any) => tabChangeHandler(e, 'ALL')}
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
 									All
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
+									onClick={(e: any) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
 									Active
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'SOLD')}
+									onClick={(e: any) => tabChangeHandler(e, 'SOLD')}
 									value="SOLD"
 									className={value === 'SOLD' ? 'li on' : 'li'}
 								>
 									Sold
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'DELETE')}
+									onClick={(e: any) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
@@ -193,8 +231,8 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 				</Box>
 			</Box>
 		</Box>
-	);
-};
+	)
+}
 
 AdminProducts.defaultProps = {
 	initialInquiry: {
@@ -204,6 +242,6 @@ AdminProducts.defaultProps = {
 		direction: 'DESC',
 		search: {},
 	},
-};
+}
 
-export default withAdminLayout(AdminProducts);
+export default withAdminLayout(AdminProducts)

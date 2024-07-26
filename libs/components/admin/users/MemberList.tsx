@@ -1,5 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
+import React from 'react'
+import Link from 'next/link'
 import {
 	TableCell,
 	TableHead,
@@ -11,42 +11,42 @@ import {
 	Menu,
 	Fade,
 	MenuItem,
-} from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import { Stack } from '@mui/material';
-import { Member } from '../../../types/member/member';
-import { REACT_APP_API_URL } from '../../../config';
-import { MemberStatus, MemberType } from '../../../enums/member.enum';
+} from '@mui/material'
+import Avatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
+import { Stack } from '@mui/material'
+import { Member } from '../../../types/member/member'
+import { REACT_APP_API_URL } from '../../../config'
+import { MemberStatus, MemberType } from '../../../enums/member.enum'
 
 interface Data {
-	id: string;
-	nickname: string;
-	fullname: string;
-	phone: string;
-	type: string;
-	state: string;
-	warning: string;
-	block: string;
+	id: string
+	nickname: string
+	fullname: string
+	phone: string
+	type: string
+	state: string
+	warning: string
+	block: string
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 	if (b[orderBy] < a[orderBy]) {
-		return -1;
+		return -1
 	}
 	if (b[orderBy] > a[orderBy]) {
-		return 1;
+		return 1
 	}
-	return 0;
+	return 0
 }
 
-type Order = 'asc' | 'desc';
+type Order = 'asc' | 'desc'
 
 interface HeadCell {
-	disablePadding: boolean;
-	id: keyof Data;
-	label: string;
-	numeric: boolean;
+	disablePadding: boolean
+	id: keyof Data
+	label: string
+	numeric: boolean
 }
 
 const headCells: readonly HeadCell[] = [
@@ -98,19 +98,19 @@ const headCells: readonly HeadCell[] = [
 		disablePadding: false,
 		label: 'STATE',
 	},
-];
+]
 
 interface EnhancedTableProps {
-	numSelected: number;
-	onRequestSort: (event: React.MouseEvent<unknown>, product: keyof Data) => void;
-	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	order: Order;
-	orderBy: string;
-	rowCount: number;
+	numSelected: number
+	onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
+	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void
+	order: Order
+	orderBy: string
+	rowCount: number
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-	const { onSelectAllClick } = props;
+	const { onSelectAllClick } = props
 
 	return (
 		<TableHead>
@@ -126,19 +126,19 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 				))}
 			</TableRow>
 		</TableHead>
-	);
+	)
 }
 
 interface MemberPanelListType {
-	members: Member[];
-	anchorEl: any;
-	menuIconClickHandler: any;
-	menuIconCloseHandler: any;
-	updateMemberHandler: any;
+	members: Member[]
+	anchorEl: any
+	menuIconClickHandler: any
+	menuIconCloseHandler: any
+	updateMemberHandler: any
 }
 
 export const MemberPanelList = (props: MemberPanelListType) => {
-	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props;
+	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props
 
 	return (
 		<Stack>
@@ -147,7 +147,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 					{/*@ts-ignore*/}
 					<EnhancedTableHead />
 					<TableBody>
-						{members.length === 0 && (
+						{members?.length === 0 && (
 							<TableRow>
 								<TableCell align="center" colSpan={8}>
 									<span className={'no-data'}>data not found!</span>
@@ -155,11 +155,11 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 							</TableRow>
 						)}
 
-						{members.length !== 0 &&
-							members.map((member: Member, index: number) => {
+						{members?.length !== 0 &&
+							members?.map((member: Member, index: number) => {
 								const member_image = member.memberImage
 									? `${REACT_APP_API_URL}/${member.memberImage}`
-									: '/img/profile/defaultUser.svg';
+									: '/img/profile/defaultUser.svg'
 								return (
 									<TableRow hover key={member?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 										<TableCell align="left">{member._id}</TableCell>
@@ -244,11 +244,11 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											</Menu>
 										</TableCell>
 									</TableRow>
-								);
+								)
 							})}
 					</TableBody>
 				</Table>
 			</TableContainer>
 		</Stack>
-	);
-};
+	)
+}

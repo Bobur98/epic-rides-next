@@ -71,10 +71,9 @@ const Join: NextPage = () => {
 				<Stack className={'container'}>
 					<Stack className={'main'}>
 						<Stack className={'left'}>
-							{/* @ts-ignore */}
 							<Box className={'logo'}>
-								<img src="/img/logo/logoText.svg" alt="" />
-								<span>Epic Rides</span>
+								<img src="/img/logo/logo2.png" alt="" />
+								<span>𝕰𝖕𝖎𝖈𝕽𝖎𝖉𝖊𝖘</span>
 							</Box>
 							<Box className={'info'}>
 								<span>{loginView ? 'login' : 'signup'}</span>
@@ -89,8 +88,8 @@ const Join: NextPage = () => {
 										onChange={(e) => handleInput('nick', e.target.value)}
 										required={true}
 										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
+											if (event.key == 'Enter' && loginView) doLogin()
+											if (event.key == 'Enter' && !loginView) doSignUp()
 										}}
 									/>
 								</div>
@@ -102,8 +101,8 @@ const Join: NextPage = () => {
 										onChange={(e) => handleInput('password', e.target.value)}
 										required={true}
 										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
+											if (event.key == 'Enter' && loginView) doLogin()
+											if (event.key == 'Enter' && !loginView) doSignUp()
 										}}
 									/>
 								</div>
@@ -116,7 +115,7 @@ const Join: NextPage = () => {
 											onChange={(e) => handleInput('phone', e.target.value)}
 											required={true}
 											onKeyDown={(event) => {
-												if (event.key == 'Enter') doSignUp();
+												if (event.key == 'Enter') doSignUp()
 											}}
 										/>
 									</div>
@@ -192,7 +191,7 @@ const Join: NextPage = () => {
 										Not registered yet?
 										<b
 											onClick={() => {
-												viewChangeHandler(false);
+												viewChangeHandler(false)
 											}}
 										>
 											SIGNUP
@@ -206,11 +205,10 @@ const Join: NextPage = () => {
 								)}
 							</Box>
 						</Stack>
-						<Stack className={'right'}></Stack>
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
 };
 

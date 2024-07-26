@@ -1,98 +1,128 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import type { NextPage } from 'next';
-import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { MemberPanelList } from '../../../libs/components/admin/users/MemberList';
-import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import TablePagination from '@mui/material/TablePagination';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { MembersInquiry } from '../../../libs/types/member/member.input';
-import { Member } from '../../../libs/types/member/member';
-import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
-import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { MemberUpdate } from '../../../libs/types/member/member.update';
+import React, { useCallback, useEffect, useState } from 'react'
+import type { NextPage } from 'next'
+import withAdminLayout from '../../../libs/components/layout/LayoutAdmin'
+import { MemberPanelList } from '../../../libs/components/admin/users/MemberList'
+import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import { TabContext } from '@mui/lab'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import TablePagination from '@mui/material/TablePagination'
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded'
+import { MembersInquiry } from '../../../libs/types/member/member.input'
+import { Member } from '../../../libs/types/member/member'
+import { MemberStatus, MemberType } from '../../../libs/enums/member.enum'
+import { sweetErrorHandling } from '../../../libs/sweetAlert'
+import { MemberUpdate } from '../../../libs/types/member/member.update'
+import { useMutation, useQuery } from '@apollo/client'
+import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation'
+import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query'
+import { T } from '../../../libs/types/common'
 
 const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
-	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
-	const [members, setMembers] = useState<Member[]>([]);
-	const [membersTotal, setMembersTotal] = useState<number>(0);
+	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([])
+	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry)
+	const [members, setMembers] = useState<Member[]>([])
+	const [membersTotal, setMembersTotal] = useState<number>(0)
 	const [value, setValue] = useState(
 		membersInquiry?.search?.memberStatus ? membersInquiry?.search?.memberStatus : 'ALL',
-	);
-	const [searchText, setSearchText] = useState('');
-	const [searchType, setSearchType] = useState('ALL');
+	)
+	const [searchText, setSearchText] = useState('')
+	const [searchType, setSearchType] = useState('ALL')
 
 	/** APOLLO REQUESTS **/
+	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN)
+
+	const {
+		loading: getAllMembersByAdminLoading,
+		data: getAllMembersByAdminData,
+		error: getAllMembersByAdminError,
+		refetch: getAllMembersRefetch,
+	} = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
+		fetchPolicy: 'network-only',
+		variables: { input: membersInquiry },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setMembers(data?.getAllMembersByAdmin?.list)
+			setMembersTotal(data?.getAllMembersByAdmin?.metaCounter[0]?.total ?? 0)
+		},
+	})
+	console.log(members, '************')
 
 	/** LIFECYCLES **/
-	useEffect(() => {}, [membersInquiry]);
+	useEffect(() => {
+		getAllMembersRefetch({ input: membersInquiry }).then()
+	}, [membersInquiry])
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {
-		membersInquiry.page = newPage + 1;
-		setMembersInquiry({ ...membersInquiry });
-	};
+		membersInquiry.page = newPage + 1
+		await getAllMembersRefetch({ input: membersInquiry })
+		setMembersInquiry({ ...membersInquiry })
+	}
 
 	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		membersInquiry.limit = parseInt(event.target.value, 10);
-		membersInquiry.page = 1;
-		setMembersInquiry({ ...membersInquiry });
-	};
+		membersInquiry.limit = parseInt(event.target.value, 10)
+		membersInquiry.page = 1
+		setMembersInquiry({ ...membersInquiry })
+	}
 
 	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
+		const tempAnchor = anchorEl.slice()
+		tempAnchor[index] = e.currentTarget
+		setAnchorEl(tempAnchor)
+	}
 
 	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
+		setAnchorEl([])
+	}
 
 	const tabChangeHandler = async (event: any, newValue: string) => {
-		setValue(newValue);
-		setSearchText('');
+		setValue(newValue)
+		setSearchText('')
 
-		setMembersInquiry({ ...membersInquiry, page: 1, sort: 'createdAt' });
+		setMembersInquiry({ ...membersInquiry, page: 1, sort: 'createdAt' })
 
 		switch (newValue) {
 			case 'ACTIVE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.ACTIVE } });
-				break;
+				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.ACTIVE } })
+				break
 			case 'BLOCK':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.BLOCK } });
-				break;
+				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.BLOCK } })
+				break
 			case 'DELETE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.DELETE } });
-				break;
+				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.DELETE } })
+				break
 			default:
-				delete membersInquiry?.search?.memberStatus;
-				setMembersInquiry({ ...membersInquiry });
-				break;
+				delete membersInquiry?.search?.memberStatus
+				setMembersInquiry({ ...membersInquiry })
+				break
 		}
-	};
+	}
 
 	const updateMemberHandler = async (updateData: MemberUpdate) => {
 		try {
-			menuIconCloseHandler();
+			await updateMemberByAdmin({
+				variables: {
+					input: updateData,
+				},
+			})
+			menuIconCloseHandler()
+			await getAllMembersRefetch({ input: membersInquiry })
 		} catch (err: any) {
-			sweetErrorHandling(err).then();
+			sweetErrorHandling(err).then()
 		}
-	};
+	}
 
 	const textHandler = useCallback((value: string) => {
 		try {
-			setSearchText(value);
+			setSearchText(value)
 		} catch (err: any) {
-			console.log('textHandler: ', err.message);
+			console.log('textHandler: ', err.message)
 		}
-	}, []);
+	}, [])
 
 	const searchTextHandler = () => {
 		try {
@@ -102,15 +132,15 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 					...membersInquiry.search,
 					text: searchText,
 				},
-			});
+			})
 		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message);
+			console.log('searchTextHandler: ', err.message)
 		}
-	};
+	}
 
 	const searchTypeHandler = async (newValue: string) => {
 		try {
-			setSearchType(newValue);
+			setSearchType(newValue)
 
 			if (newValue !== 'ALL') {
 				setMembersInquiry({
@@ -121,15 +151,15 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 						...membersInquiry.search,
 						memberType: newValue as MemberType,
 					},
-				});
+				})
 			} else {
-				delete membersInquiry?.search?.memberType;
-				setMembersInquiry({ ...membersInquiry });
+				delete membersInquiry?.search?.memberType
+				setMembersInquiry({ ...membersInquiry })
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
+			console.log('searchTypeHandler: ', err.message)
 		}
-	};
+	}
 
 	return (
 		<Box component={'div'} className={'content'}>
@@ -142,28 +172,28 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 						<Box component={'div'}>
 							<List className={'tab-menu'}>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ALL')}
+									onClick={(e: any) => tabChangeHandler(e, 'ALL')}
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
 									All
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
+									onClick={(e: any) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
 									Active
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'BLOCK')}
+									onClick={(e: any) => tabChangeHandler(e, 'BLOCK')}
 									value="BLOCK"
 									className={value === 'BLOCK' ? 'li on' : 'li'}
 								>
 									Blocked
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'DELETE')}
+									onClick={(e: any) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
@@ -179,7 +209,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									className={'search'}
 									placeholder="Search user name"
 									onKeyDown={(event) => {
-										if (event.key == 'Enter') searchTextHandler();
+										if (event.key == 'Enter') searchTextHandler()
 									}}
 									endAdornment={
 										<>
@@ -187,14 +217,15 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 												<CancelRoundedIcon
 													style={{ cursor: 'pointer' }}
 													onClick={async () => {
-														setSearchText('');
+														setSearchText('')
 														setMembersInquiry({
 															...membersInquiry,
 															search: {
 																...membersInquiry.search,
 																text: '',
 															},
-														});
+														})
+														await getAllMembersRefetch({ input: membersInquiry })
 													}}
 												/>
 											)}
@@ -242,8 +273,8 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 				</Box>
 			</Box>
 		</Box>
-	);
-};
+	)
+}
 
 AdminUsers.defaultProps = {
 	initialInquiry: {
@@ -252,6 +283,6 @@ AdminUsers.defaultProps = {
 		sort: 'createdAt',
 		search: {},
 	},
-};
+}
 
-export default withAdminLayout(AdminUsers);
+export default withAdminLayout(AdminUsers)
