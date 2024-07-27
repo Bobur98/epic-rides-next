@@ -652,6 +652,54 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 	}
 `
 /**************************
+ *         COMMENTS        *
+ *************************/
+export const GET_COMMENTS = gql`
+	query GetComments($input: CommentsInquiryDto!) {
+		getComments(input: $input) {
+			list {
+				_id
+				commentStatus
+				commentGroup
+				commentContent
+				commentRefId
+				memberId
+				createdAt
+				updatedAt
+				memberData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberProducts
+					memberArticles
+					memberFollowings
+					memberPoints
+					memberLikes
+					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
+					createdAt
+					updatedAt
+					deletedAt
+					accessToken
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`
+/**************************
  *         FAQ        *
  *************************/
 export const GET_FAQ = gql`
@@ -712,6 +760,7 @@ export const GET_FAQS = gql`
 				faqType
 				createdAt
 				updatedAt
+				faqStatus
 				memberData {
 					_id
 					memberType

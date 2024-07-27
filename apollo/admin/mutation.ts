@@ -206,6 +206,7 @@ export const CREATE_FAQ_BY_ADMIN = gql`
 			faqType
 			createdAt
 			updatedAt
+			faqStatus
 			memberData {
 				_id
 				memberType
@@ -242,6 +243,7 @@ export const UPDATE_FAQ_BY_ADMIN = gql`
 			faqQuestion
 			faqAnswer
 			faqType
+			faqStatus
 			memberData {
 				_id
 				memberType
@@ -276,6 +278,7 @@ export const DELETE_FAQ_BY_ADMIN = gql`
 		deleteFaq(input: $input) {
 			_id
 			faqQuestion
+			faqStatus
 			faqAnswer
 			faqType
 		}

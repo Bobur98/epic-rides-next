@@ -236,6 +236,7 @@ export const GET_FAQS_BY_ADMIN = gql`
 				faqType
 				createdAt
 				updatedAt
+				faqStatus
 			}
 			metaCounter {
 				total
@@ -250,6 +251,7 @@ export const GET_FAQ_BY_ADMIN = gql`
 			faqQuestion
 			faqAnswer
 			faqType
+			faqStatus
 			memberData {
 				_id
 				memberType

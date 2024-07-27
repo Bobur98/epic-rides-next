@@ -27,12 +27,11 @@ import 'swiper/css'
 import 'swiper/css/pagination'
 import ProductBigCard from '../../libs/components/common/ProductBigCard'
 import { Product } from '../../libs/types/product/product'
-import { GET_PRODUCT, GET_PRODUCTS } from '../../apollo/user/query'
+import { GET_COMMENTS, GET_PRODUCT, GET_PRODUCTS } from '../../apollo/user/query'
 import { CREATE_COMMENT, LIKE_TARGET_PRODUCT } from '../../apollo/user/mutation'
 import { T } from '../../libs/types/common'
 import { Direction, Message } from '../../libs/enums/common.enum'
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert'
-import { GET_COMMENTS } from '../../apollo/admin/query'
 
 SwiperCore.use([Autoplay, Navigation, Pagination])
 
