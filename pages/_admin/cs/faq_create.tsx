@@ -145,9 +145,9 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 									<input
 										type="text"
 										className="description-input"
-										placeholder={'Model'}
-										value={insertFaqData.faqAnswer}
-										onChange={({ target: { value } }) => setInsertFaqData({ ...insertFaqData, faqAnswer: value })}
+										placeholder={'question'}
+										value={insertFaqData.faqQuestion}
+										onChange={({ target: { value } }) => setInsertFaqData({ ...insertFaqData, faqQuestion: value })}
 									/>
 								</Stack>
 							</Stack>
@@ -157,9 +157,9 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 									<input
 										type="text"
 										className="description-input"
-										placeholder={'Address'}
-										value={insertFaqData.faqQuestion}
-										onChange={({ target: { value } }) => setInsertFaqData({ ...insertFaqData, faqQuestion: value })}
+										placeholder={'question'}
+										value={insertFaqData.faqAnswer}
+										onChange={({ target: { value } }) => setInsertFaqData({ ...insertFaqData, faqAnswer: value })}
 									/>
 								</Stack>
 							</Stack>

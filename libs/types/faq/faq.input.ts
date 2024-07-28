@@ -13,4 +13,6 @@ export interface FaqsInquiry {
 	limit: number | undefined
 	sort: string
 	faqType?: FaqType | undefined
+	faqStatus?: FaqStatus | undefined
+	text?: string | undefined
 }

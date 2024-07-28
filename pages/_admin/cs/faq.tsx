@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin'
 import { Box, Button, InputAdornment, Stack } from '@mui/material'
@@ -22,6 +22,7 @@ import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
 import { DELETE_FAQ_BY_ADMIN, UPDATE_FAQ_BY_ADMIN } from '../../../apollo/admin/mutation'
 import { FaqUpdate } from '../../../libs/types/faq/faq.update'
 import { GET_FAQS } from '../../../apollo/user/query'
+import { FaqStatus, FaqType } from '../../../libs/enums/faq.enum'
 
 interface FaqArticlesProps {
 	initialInquiry?: {
@@ -40,6 +41,7 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [faqsTotal, setFaqsTotal] = useState<number>(0)
 	const [value, setValue] = useState('ALL')
 	const [searchType, setSearchType] = useState('ALL')
+	const [searchText, setSearchText] = useState('')
 
 	const [faqs, setFaqs] = useState<Faqs[]>([])
 	const [total, setTotal] = useState<number>(0)
@@ -54,7 +56,7 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 		refetch: getFaqsRefetch,
 	} = useQuery(GET_FAQS, {
 		fetchPolicy: 'network-only', // by default cache-first
-		variables: { input: { ...initialInquiry, faqType: type.toUpperCase() } },
+		variables: { input: { ...faqsInquiry, faqType: type.toUpperCase() } },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setFaqs(data?.getFaqs?.list || [])
@@ -64,8 +66,8 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		getFaqsRefetch({ input: initialInquiry }).then()
-	}, [initialInquiry])
+		getFaqsRefetch({ input: faqsInquiry }).then()
+	}, [faqsInquiry])
 
 	/** HANDLERS **/
 
@@ -86,15 +88,16 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 
 		switch (newValue) {
 			case 'ACTIVE':
-				setFaqsInquiry({ ...faqsInquiry })
+				setFaqsInquiry({ ...faqsInquiry, faqStatus: FaqStatus.ACTIVE })
 				break
 			case 'HOLD':
-				setFaqsInquiry({ ...faqsInquiry })
+				setFaqsInquiry({ ...faqsInquiry, faqStatus: FaqStatus.HOLD })
 				break
 			case 'DELETE':
-				setFaqsInquiry({ ...faqsInquiry })
+				setFaqsInquiry({ ...faqsInquiry, faqStatus: FaqStatus.DELETE })
 				break
 			default:
+				delete faqsInquiry?.faqStatus
 				setFaqsInquiry({ ...faqsInquiry })
 				break
 		}
@@ -116,39 +119,56 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 			sweetErrorHandling(err).then()
 		}
 	}
-	// const searchTypeHandler = async (newValue: string) => {
-	// 	try {
-	// 		setSearchType(newValue)
 
-	// 		if (newValue !== 'ALL') {
-	// 			setFaqsInquiry({
-	// 				...faqsInquiry,
-	// 				page: 1,
-	// 				sort: 'createdAt',
-	// 				search: {
-	// 					...faqsInquiry,
-	// 					faqLocationList: [newValue as FaqLocation],
-	// 				},
-	// 			})
-	// 		} else {
-	// 			delete faqsInquiry?.search?.faqLocationList
-	// 			setFaqsInquiry({ ...faqsInquiry })
-	// 		}
-	// 	} catch (err: any) {
-	// 		console.log('searchTypeHandler: ', err.message)
-	// 	}
-	// }
+	const textHandler = useCallback((value: string) => {
+		try {
+			setSearchText(value)
+		} catch (err: any) {
+			console.log('textHandler: ', err.message)
+		}
+	}, [])
+
+	const searchTextHandler = () => {
+		try {
+			setFaqsInquiry({
+				...faqsInquiry,
+				text: searchText,
+			})
+		} catch (err: any) {
+			console.log('searchTextHandler: ', err.message)
+		}
+	}
+
+	const searchTypeHandler = async (newValue: string) => {
+		try {
+			setSearchType(newValue)
+
+			if (newValue !== 'ALL') {
+				setFaqsInquiry({
+					...faqsInquiry,
+					page: 1,
+					sort: 'createdAt',
+					faqType: newValue.toUpperCase() as FaqType,
+				})
+			} else {
+				delete faqsInquiry?.faqType
+				setFaqsInquiry({ ...faqsInquiry })
+			}
+		} catch (err: any) {
+			console.log('searchTypeHandler: ', err.message)
+		}
+	}
 
 	const updateFaqHandler = async (updateData: FaqUpdate) => {
 		try {
-			console.log('+updateData: ', updateData)
+			console.log('+updateData: ')
 			await updateFaqByAdmin({
 				variables: {
 					input: updateData,
 				},
 			})
 			menuIconCloseHandler()
-			await getFaqsData({ input: faqsInquiry })
+			await getFaqsRefetch({ input: faqsInquiry })
 		} catch (err: any) {
 			menuIconCloseHandler()
 			sweetErrorHandling(err).then()
@@ -175,54 +195,72 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 							<Box component={'div'}>
 								<List className={'tab-menu'}>
 									<ListItem
-										// onClick={(e) => handleTabChange(e, 'all')}
-										value="all"
-										className={'all' === 'all' ? 'li on' : 'li'}
+										onClick={(e: any) => tabChangeHandler(e, 'ALL')}
+										value="ALL"
+										className={value === 'ALL' ? 'li on' : 'li'}
 									>
-										All (0)
+										All
 									</ListItem>
 									<ListItem
-										// onClick={(e) => handleTabChange(e, 'active')}
-										value="active"
-										className={'all' === 'all' ? 'li on' : 'li'}
+										onClick={(e: any) => tabChangeHandler(e, 'ACTIVE')}
+										value="ACTIVE"
+										className={value === 'ACTIVE' ? 'li on' : 'li'}
 									>
-										Active (0)
+										Active
 									</ListItem>
 									<ListItem
-										// onClick={(e) => handleTabChange(e, 'blocked')}
-										value="blocked"
-										className={'all' === 'all' ? 'li on' : 'li'}
+										onClick={(e: any) => tabChangeHandler(e, 'HOLD')}
+										value="HOLD"
+										className={value === 'HOLD' ? 'li on' : 'li'}
 									>
-										Blocked (0)
+										HOLD
 									</ListItem>
 									<ListItem
-										// onClick={(e) => handleTabChange(e, 'deleted')}
-										value="deleted"
-										className={'all' === 'all' ? 'li on' : 'li'}
+										onClick={(e: any) => tabChangeHandler(e, 'DELETE')}
+										value="DELETE"
+										className={value === 'DELETE' ? 'li on' : 'li'}
 									>
-										Deleted (0)
+										Deleted
 									</ListItem>
 								</List>
 								<Divider />
 								<Stack className={'search-area'} sx={{ m: '24px' }}>
-									<Select sx={{ width: '160px', mr: '20px' }} value={'searchCategory'}>
-										<MenuItem value={'mb_nick'}>mb_nick</MenuItem>
-										<MenuItem value={'mb_id'}>mb_id</MenuItem>
+									<Select sx={{ width: '160px', mr: '20px' }} value={searchType}>
+										<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
+											ALL
+										</MenuItem>
+										{Object.values(FaqType).map((type: string) => (
+											<MenuItem value={type} onClick={() => searchTypeHandler(type)} key={type}>
+												{type}
+											</MenuItem>
+										))}
 									</Select>
 
 									<OutlinedInput
-										value={'searchInput'}
-										// onChange={(e) => handleInput(e.target.value)}
+										value={searchText}
+										onChange={(e: any) => textHandler(e.target.value)}
 										sx={{ width: '100%' }}
 										className={'search'}
 										placeholder="Search user name"
 										onKeyDown={(event) => {
-											// if (event.key == 'Enter') searchTargetHandler().then();
+											if (event.key == 'Enter') searchTextHandler()
 										}}
 										endAdornment={
 											<>
-												{true && <CancelRoundedIcon onClick={() => {}} />}
-												<InputAdornment position="end" onClick={() => {}}>
+												{searchText && (
+													<CancelRoundedIcon
+														style={{ cursor: 'pointer' }}
+														onClick={async () => {
+															setSearchText('')
+															setFaqsInquiry({
+																...faqsInquiry,
+																text: '',
+															})
+															await getFaqsRefetch({ input: faqsInquiry })
+														}}
+													/>
+												)}
+												<InputAdornment position="end" onClick={() => searchTextHandler()}>
 													<img src="/img/icons/search_icon.png" alt={'searchIcon'} />
 												</InputAdornment>
 											</>
@@ -241,11 +279,11 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 							/>
 
 							<TablePagination
-								rowsPerPageOptions={[20, 40, 60]}
+								rowsPerPageOptions={[10, 20, 30]}
 								component="div"
 								count={4}
 								rowsPerPage={10}
-								page={1}
+								page={0}
 								onPageChange={() => {}}
 								onRowsPerPageChange={() => {}}
 							/>
@@ -260,7 +298,7 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 FaqArticles.defaultProps = {
 	initialInquiry: {
 		page: 1,
-		limit: 9,
+		limit: 10,
 		// faqType: 'MOTORCYCLE',
 	},
 }

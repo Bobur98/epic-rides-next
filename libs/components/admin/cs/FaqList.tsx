@@ -82,11 +82,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 		<TableHead>
 			<TableRow>
 				{headCells.map((headCell) => (
-					<TableCell
-						key={headCell.id}
-						align={headCell.numeric ? 'left' : 'center'}
-						padding={headCell.disablePadding ? 'none' : 'normal'}
-					>
+					<TableCell key={headCell.id} align={'center'} padding={headCell.disablePadding ? 'none' : 'normal'}>
 						{headCell.label}
 					</TableCell>
 				))}
@@ -127,54 +123,38 @@ export const FaqArticlesPanelList = (props: FaqPanelListType) => {
 							faqs.map((faq: any, index: number) => {
 								return (
 									<TableRow hover key={faq?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-										<TableCell align="left">{faq.faqType}</TableCell>
+										<TableCell align="center">{faq.faqType}</TableCell>
 										<TableCell align="center">{faq.faqQuestion}</TableCell>
 										<TableCell align="center">{faq.faqAnswer}</TableCell>
 										<TableCell align="center">
-											{faq.faqStatus === FaqStatus.DELETE && (
-												<Button
-													variant="outlined"
-													sx={{ p: '3px', border: 'none', ':hover': { border: '1px solid #000000' } }}
-													onClick={() => removeFaqHandler(faq._id)}
-												>
-													<DeleteIcon fontSize="small" />
-												</Button>
-											)}
+											<Button onClick={(e: any) => menuIconClickHandler(e, faq._id)} className={'badge success'}>
+												{faq.faqStatus}
+											</Button>
 
-											{faq.faqStatus === FaqStatus.HOLD && <Button className={'badge warning'}>{faq.faqStatus}</Button>}
-
-											{faq.faqStatus === FaqStatus.ACTIVE && (
-												<>
-													<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
-														{faq.faqStatus}
-													</Button>
-
-													<Menu
-														className={'menu-modal'}
-														MenuListProps={{
-															'aria-labelledby': 'fade-button',
-														}}
-														anchorEl={anchorEl[index]}
-														open={Boolean(anchorEl[index])}
-														onClose={menuIconCloseHandler}
-														TransitionComponent={Fade}
-														sx={{ p: 1 }}
-													>
-														{Object.values(FaqStatus)
-															.filter((ele) => ele !== faq.faqStatus)
-															.map((status: string) => (
-																<MenuItem
-																	onClick={() => updateFaqHandler({ _id: faq._id, faqStatus: status })}
-																	key={status}
-																>
-																	<Typography variant={'subquestion1'} component={'span'}>
-																		{status}
-																	</Typography>
-																</MenuItem>
-															))}
-													</Menu>
-												</>
-											)}
+											<Menu
+												className={'menu-modal'}
+												MenuListProps={{
+													'aria-labelledby': 'fade-button',
+												}}
+												anchorEl={anchorEl[faq._id]}
+												open={Boolean(anchorEl[faq._id])}
+												onClose={menuIconCloseHandler}
+												TransitionComponent={Fade}
+												sx={{ p: 1 }}
+											>
+												{Object.values(FaqStatus)
+													.filter((ele: string) => ele !== faq?.faqStatus)
+													.map((status: string) => (
+														<MenuItem
+															onClick={() => updateFaqHandler({ _id: faq._id, faqStatus: status })}
+															key={status}
+														>
+															<Typography variant={'subtitle1'} component={'span'}>
+																{status}
+															</Typography>
+														</MenuItem>
+													))}
+											</Menu>
 										</TableCell>
 									</TableRow>
 								)
