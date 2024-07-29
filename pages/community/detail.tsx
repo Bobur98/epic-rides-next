@@ -69,9 +69,22 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [likeLoading, setLikeLoading] = useState<boolean>(false)
 	const [boardArticle, setBoardArticle] = useState<BoardArticle>()
 
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE)
-	const [createComment] = useMutation(CREATE_COMMENT)
-	const [updateComment] = useMutation(UPDATE_COMMENT)
+	const [likeTargetBoardArticle, { error: createLikeError }] = useMutation(LIKE_TARGET_BOARD_ARTICLE, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [createComment, { error: createCommnetError }] = useMutation(CREATE_COMMENT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [updateComment, { error: createUpdateError }] = useMutation(UPDATE_COMMENT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+
 	/** APOLLO REQUESTS **/
 	const {
 		loading: boardArticlesLoading,
@@ -103,6 +116,15 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 			setTotal(data.getComments?.metaCounter?.[0]?.total || 0)
 		},
 	})
+
+	if (boardArticlesError) {
+		router.push('/_error')
+	}
+
+	if (getCommentsError) {
+		router.push('/_error')
+	}
+	
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (articleId) setSearchFilter({ ...searchFilter, search: { commentRefId: articleId } })

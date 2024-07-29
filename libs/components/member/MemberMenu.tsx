@@ -38,6 +38,10 @@ const MemberMenu = (props: MemberMenuProps) => {
 		},
 	})
 
+	if (getMemberError) {
+		router.push('/_error')
+	}
+
 	if (device === 'mobile') {
 		return <div>MEMBER MENU MOBILE</div>
 	} else {

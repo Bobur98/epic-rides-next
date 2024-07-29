@@ -11,6 +11,7 @@ import { GET_BOARD_ARTICLES } from '../../../apollo/user/query'
 import { LIKE_TARGET_BOARD_ARTICLE } from '../../../apollo/user/mutation'
 import { Message } from '../../enums/common.enum'
 import { sweetMixinErrorAlert } from '../../sweetAlert'
+import { useRouter } from 'next/router'
 
 const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 	const device = useDeviceDetect()
@@ -19,11 +20,16 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 		...initialInput,
 		search: { memberId: user._id },
 	})
+	const router = useRouter()
 	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([])
 	const [totalCount, setTotalCount] = useState<number>(0)
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE)
+	const [likeTargetBoardArticle, { error: createError }] = useMutation(LIKE_TARGET_BOARD_ARTICLE, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 	const {
 		loading: boardArticlesLoading,
 		data: boardArticlesData,
@@ -38,6 +44,10 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total)
 		},
 	})
+
+	if (boardArticlesError) {
+		router.push('/_error')
+	}
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
 		setSearchCommunity({ ...searchCommunity, page: value })

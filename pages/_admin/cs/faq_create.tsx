@@ -29,8 +29,16 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 	console.log(years)
 
 	/** APOLLO REQUESTS **/
-	const [createFaq] = useMutation(CREATE_FAQ_BY_ADMIN)
-	const [updateFaq] = useMutation(UPDATE_FAQ_BY_ADMIN)
+	const [createFaq, { error: createError }] = useMutation(CREATE_FAQ_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [updateFaq, { error: createUpdateError }] = useMutation(UPDATE_FAQ_BY_ADMIN, {
+		onError: () => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getFaqLoading,
@@ -46,6 +54,9 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 		},
 	})
 
+	if (getFaqError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		setInsertFaqData({

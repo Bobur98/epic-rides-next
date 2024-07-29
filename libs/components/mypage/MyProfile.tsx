@@ -10,15 +10,20 @@ import { userVar } from '../../../apollo/store'
 import { MemberUpdate } from '../../types/member/member.update'
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert'
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation'
+import { useRouter } from 'next/router'
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
-	const device = useDeviceDetect();
-	const token = getJwtToken();
-	const user = useReactiveVar(userVar);
-	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
-
+	const device = useDeviceDetect()
+	const token = getJwtToken()
+	const user = useReactiveVar(userVar)
+	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues)
+	const router = useRouter()
 	/** APOLLO REQUESTS **/
-	const [updateMember] = useMutation(UPDATE_MEMBER)
+	const [updateMember, { error: createError }] = useMutation(UPDATE_MEMBER, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -104,14 +109,14 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			updateData.memberAddress === '' ||
 			updateData.memberImage === ''
 		) {
-			return true;
+			return true
 		}
-	};
+	}
 
-	console.log('+updateData', updateData);
+	console.log('+updateData', updateData)
 
 	if (device === 'mobile') {
-		return <>MY PROFILE PAGE MOBILE</>;
+		return <>MY PROFILE PAGE MOBILE</>
 	} else
 		return (
 			<div id="my-profile-page">
@@ -199,8 +204,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					</Stack>
 				</Stack>
 			</div>
-		);
-};
+		)
+}
 
 MyProfile.defaultProps = {
 	initialValues: {

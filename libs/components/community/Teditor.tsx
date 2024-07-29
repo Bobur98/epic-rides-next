@@ -20,8 +20,17 @@ const TuiEditor = () => {
 	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE)
 
 	/** APOLLO REQUESTS **/
-	const [createBoardArticle] = useMutation(CREATE_BOARD_ARTICLE)
-
+  const [createBoardArticle, { loading: createLoading, error: createError }] = useMutation(CREATE_BOARD_ARTICLE, {
+		onError: (error) => {
+			console.error('GraphQL mutation error:', error)
+			// Redirect to the custom error page
+			router.push('/_error')
+		},
+		onCompleted: (data) => {
+			console.log('Mutation completed successfully:', data)
+			// Handle successful completion, e.g., show a success message or redirect
+		},
+	})
 	const memoizedValues = useMemo(() => {
 		const articleTitle = '',
 			articleContent = '',

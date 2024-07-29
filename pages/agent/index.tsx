@@ -49,16 +49,21 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 				setTotal(data?.getAgents?.metaCounter[0]?.total)
 			},
 		})
-	/** LIFECYCLES **/
-	useEffect(() => {
-		if (router.query.input) {
-			const input_obj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(input_obj);
-		} else
-			router.replace(`/agent?input=${JSON.stringify(searchFilter)}`, `/agent?input=${JSON.stringify(searchFilter)}`);
 
-		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
-	}, [router]);
+		if (getAgentsError) {
+			router.push('/_error')
+		}
+
+		/** LIFECYCLES **/
+		useEffect(() => {
+			if (router.query.input) {
+				const input_obj = JSON.parse(router?.query?.input as string)
+				setSearchFilter(input_obj)
+			} else
+				router.replace(`/agent?input=${JSON.stringify(searchFilter)}`, `/agent?input=${JSON.stringify(searchFilter)}`)
+
+			setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page)
+		}, [router])
 
 	/** HANDLERS **/
 	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {

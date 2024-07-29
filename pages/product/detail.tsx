@@ -59,8 +59,16 @@ const ProductDetail: NextPage = ({ initialComment, ...props }: any) => {
 	})
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT)
-	const [createComment] = useMutation(CREATE_COMMENT)
+	const [likeTargetProduct, { error: createErrorLike }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [createComment, { error: createCommentError }] = useMutation(CREATE_COMMENT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 	const {
 		loading: getProductLoading,
 		data: getProductData,
@@ -121,6 +129,16 @@ const ProductDetail: NextPage = ({ initialComment, ...props }: any) => {
 			}
 		},
 	})
+
+	if (getProductError) {
+		router.push('/_error')
+	}
+	if (getProductsError) {
+		router.push('/_error')
+	}
+	if (getCommentsError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.id) {

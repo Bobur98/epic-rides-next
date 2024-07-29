@@ -18,6 +18,7 @@ import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query'
 import { useMutation, useQuery } from '@apollo/client'
 import { T } from '../../../libs/types/common'
 import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../apollo/admin/mutation'
+import { useRouter } from 'next/router'
 
 const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<any>([])
@@ -28,10 +29,19 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 		communityInquiry?.search?.articleStatus ? communityInquiry?.search?.articleStatus : 'ALL',
 	)
 	const [searchType, setSearchType] = useState('ALL')
+	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
-	const [updateBoardArticleByAdmin] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN)
-	const [removeBoardArticleByAdmin] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN)
+	const [updateBoardArticleByAdmin, { error: createError }] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [removeBoardArticleByAdmin, { error: createRemoveError }] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getAllPBoardArticlesLoading,
@@ -47,6 +57,10 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 			setArticleTotal(data?.getAllBoardArticlesByAdmin?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getAllPBoardArticlesError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		getAllPBoardArticlesRefetch({ input: communityInquiry }).then()

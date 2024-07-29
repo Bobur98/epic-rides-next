@@ -23,7 +23,11 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
-	const [updateProduct] = useMutation(UPDATE_PRODUCT)
+	const [updateProduct, { error: createError }] = useMutation(UPDATE_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getAgentProductsLoading,
@@ -39,6 +43,11 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			setTotal(data?.getAgentProducts?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getAgentProductsError) {
+		router.push('/_error')
+	}
+	
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
 		setSearchFilter({ ...searchFilter, page: value })

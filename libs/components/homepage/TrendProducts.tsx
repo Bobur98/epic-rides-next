@@ -14,16 +14,24 @@ import { T } from '../../types/common';
 import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation';
 import { Message } from '../../enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { useRouter } from 'next/router'
 
 interface TrendProductsProps {
-	initialInput: ProductsInquiry;
+	initialInput: ProductsInquiry
 }
 
 const TrendProducts = (props: TrendProductsProps) => {
-	const { initialInput } = props;
-	const device = useDeviceDetect();
-	const [trendProducts, setTrendProducts] = useState<Product[]>([]);
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT); // POST METHOD like postman
+	const { initialInput } = props
+	const device = useDeviceDetect()
+	const [trendProducts, setTrendProducts] = useState<Product[]>([])
+
+	const router = useRouter()
+
+	const [likeTargetProduct, { error: createError }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	}) // POST METHOD like postman
 
 	/** APOLLO REQUESTS **/
 	const {
@@ -36,29 +44,33 @@ const TrendProducts = (props: TrendProductsProps) => {
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setTrendProducts(data?.getProducts?.list);
+			setTrendProducts(data?.getProducts?.list)
 		},
-	});
+	})
+
+	if (getProductsError) {
+		router.push('/_error')
+	}
 	/** HANDLERS **/
 	const likeProductHandler = async (user: T, id: string) => {
 		try {
-			if (!id) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!id) return
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED)
 
 			// execute likeTargetProduct Mutation
 			await likeTargetProduct({
 				variables: { input: id },
-			});
-			await getProductsRefetch({ input: initialInput });
-			await sweetTopSmallSuccessAlert('success', 800);
+			})
+			await getProductsRefetch({ input: initialInput })
+			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
-	};
+	}
 
-	if (trendProducts) console.log('trendProducts:', trendProducts);
-	if (!trendProducts) return null;
+	if (trendProducts) console.log('trendProducts:', trendProducts)
+	if (!trendProducts) return null
 
 	if (device === 'mobile') {
 		return (
@@ -85,14 +97,14 @@ const TrendProducts = (props: TrendProductsProps) => {
 										<SwiperSlide key={product._id} className={'trend-product-slide'}>
 											<TrendProductCard product={product} likeProductHandler={likeProductHandler} />
 										</SwiperSlide>
-									);
+									)
 								})}
 							</Swiper>
 						)}
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	} else {
 		return (
 			<Stack className={'trend-products'}>
@@ -134,16 +146,16 @@ const TrendProducts = (props: TrendProductsProps) => {
 										<SwiperSlide key={product._id} className={'trend-product-slide'}>
 											<TrendProductCard product={product} likeProductHandler={likeProductHandler} />
 										</SwiperSlide>
-									);
+									)
 								})}
 							</Swiper>
 						)}
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};
+}
 TrendProducts.defaultProps = {
 	initialInput: {
 		page: 1,

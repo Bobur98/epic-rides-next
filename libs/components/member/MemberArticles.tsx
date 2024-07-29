@@ -12,6 +12,7 @@ import { LIKE_TARGET_BOARD_ARTICLE } from '../../../apollo/user/mutation'
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query'
 import { Message } from '../../enums/common.enum'
 import { sweetMixinErrorAlert } from '../../sweetAlert'
+import { error } from 'console'
 
 const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect()
@@ -22,7 +23,11 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 	const [memberBoArticles, setMemberBoArticles] = useState<BoardArticle[]>([])
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE)
+	const [likeTargetBoardArticle, { error: createError }] = useMutation(LIKE_TARGET_BOARD_ARTICLE, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: boardArticlesLoading,
@@ -38,6 +43,10 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 			setTotal(data?.getBoardArticles?.metaCounter?.[0]?.total || 0)
 		},
 	})
+
+	if (boardArticlesError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (memberId) setSearchFilter({ ...initialInput, search: { memberId: memberId } })

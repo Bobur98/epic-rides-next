@@ -7,13 +7,14 @@ import { Product } from '../../types/product/product';
 import { T } from '../../types/common';
 import { GET_VISITED } from '../../../apollo/user/query'
 import { useQuery } from '@apollo/client'
+import { useRouter } from 'next/router'
 
 const RecentlyVisited: NextPage = () => {
 	const device = useDeviceDetect()
 	const [recentlyVisited, setRecentlyVisited] = useState<Product[]>([])
 	const [total, setTotal] = useState<number>(0)
 	const [searchVisited, setSearchVisited] = useState<T>({ page: 1, limit: 6 })
-
+  const router = useRouter()
 	/** APOLLO REQUESTS **/
 	const {
 		loading: getVisitedLoading,
@@ -29,6 +30,9 @@ const RecentlyVisited: NextPage = () => {
 			setTotal(data?.getVisited?.metaCounter[0]?.total || 0)
 		},
 	})
+	if (getVisitedError) {
+		router.push('/_error')
+	}
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
 		setSearchVisited({ ...searchVisited, page: value })

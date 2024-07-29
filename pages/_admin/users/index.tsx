@@ -20,6 +20,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation'
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query'
 import { T } from '../../../libs/types/common'
+import { useRouter } from 'next/router'
 
 const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([])
@@ -31,9 +32,14 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	)
 	const [searchText, setSearchText] = useState('')
 	const [searchType, setSearchType] = useState('ALL')
+	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
-	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN)
+	const [updateMemberByAdmin, { error: createError }] = useMutation(UPDATE_MEMBER_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getAllMembersByAdminLoading,
@@ -49,6 +55,10 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 			setMembersTotal(data?.getAllMembersByAdmin?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getAllMembersByAdminError) {
+		router.push('/_error')
+	}
 	console.log(members, '************')
 
 	/** LIFECYCLES **/

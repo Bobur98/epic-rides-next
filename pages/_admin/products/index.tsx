@@ -18,6 +18,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import { REMOVE_PRODUCT_BY_ADMIN, UPDATE_PRODUCT_BY_ADMIN } from '../../../apollo/admin/mutation'
 import { GET_ALL_PRODUCTS_BY_ADMIN } from '../../../apollo/admin/query'
 import { T } from '../../../libs/types/common'
+import { useRouter } from 'next/router'
 
 const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([])
@@ -28,10 +29,19 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 		productsInquiry?.search?.productStatus ? productsInquiry?.search?.productStatus : 'ALL',
 	)
 	const [searchType, setSearchType] = useState('ALL')
+	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
-	const [updateProductByAdmin] = useMutation(UPDATE_PRODUCT_BY_ADMIN)
-	const [removeProductByAdmin] = useMutation(REMOVE_PRODUCT_BY_ADMIN)
+	const [updateProductByAdmin, { error: createError }] = useMutation(UPDATE_PRODUCT_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [removeProductByAdmin, { error: createRemoveError }] = useMutation(REMOVE_PRODUCT_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getAllProductsByAdminLoading,
@@ -47,6 +57,10 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 			setProductsTotal(data?.getAllProductsByAdmin?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getAllProductsByAdminError) {
+		router.push('/_error')
+	}
 
 	/** LIFECYCLES **/
 	useEffect(() => {

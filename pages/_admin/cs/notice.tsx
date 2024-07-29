@@ -50,12 +50,21 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 	const dense = false
 
 	/** APOLLO REQUESTS **/
-	const [updateNoticeByAdmin] = useMutation(UPDATE_NOTICE_BY_ADMIN)
-	const [deleteNoticeByAdmin] = useMutation(DELETE_NOTICE_BY_ADMIN)
+	const [updateNoticeByAdmin, { error: createError }] = useMutation(UPDATE_NOTICE_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [deleteNoticeByAdmin, { error: createDeleteError }] = useMutation(DELETE_NOTICE_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 	const {
 		loading: getNoticesLoading,
 		data: getNoticesData,
 		refetch: getNoticesRefetch,
+		error: getNoticesError,
 	} = useQuery(GET_NOTICES, {
 		fetchPolicy: 'network-only', // by default cache-first
 		variables: { input: { ...noticesInquiry } },
@@ -65,6 +74,11 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 			setTotal(data?.getNotices?.metaCounter[0]?.total || 0)
 		},
 	})
+
+	if (getNoticesError) {
+		router.push('/_error')
+	}
+
 	console.log(noticesInquiry, 'GET NOTICES')
 
 	/** LIFECYCLES **/
@@ -139,13 +153,13 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 			})
 		} catch (err: any) {
 			console.log('searchTextHandler: ', err.message)
+			sweetErrorHandling(err).then()
 		}
 	}
 
 	const searchTypeHandler = async (newValue: string) => {
 		try {
 			const formattedValue = newValue.replace(/ /g, '_').toUpperCase()
-
 
 			setSearchType(newValue)
 
@@ -164,6 +178,7 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 			}
 		} catch (err: any) {
 			console.log('searchTypeHandler:', err.message)
+			router.push('/_error')
 		}
 	}
 

@@ -61,6 +61,7 @@ const NoticesList: NextPage<NoticesListProps> = ({ initialInput, ...props }) => 
 		loading: getNoticesLoading,
 		data: getNoticesData,
 		refetch: getNoticesRefetch,
+		error: getNoticesError,
 	} = useQuery(GET_NOTICES, {
 		fetchPolicy: 'network-only', // by default cache-first
 		variables: { input: initialInput },
@@ -70,6 +71,10 @@ const NoticesList: NextPage<NoticesListProps> = ({ initialInput, ...props }) => 
 			setTotal(data?.getNotices?.metaCounter[0]?.total || 0)
 		},
 	})
+
+	if (getNoticesError) {
+		router.push('/_error')
+	}
 
 	/** LIFECYCLES **/
 	useEffect(() => {

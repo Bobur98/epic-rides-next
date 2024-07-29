@@ -48,12 +48,23 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 	const dense = false
 
 	/** APOLLO REQUESTS **/
-	const [updateFaqByAdmin] = useMutation(UPDATE_FAQ_BY_ADMIN)
-	const [deleteFaqByAdmin] = useMutation(DELETE_FAQ_BY_ADMIN)
+	const [updateFaqByAdmin, { error: createError }] = useMutation(UPDATE_FAQ_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+
+	const [deleteFaqByAdmin, { error: createDeleteError }] = useMutation(DELETE_FAQ_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+
 	const {
 		loading: getFaqsLoading,
 		data: getFaqsData,
 		refetch: getFaqsRefetch,
+		error: getFaqsError,
 	} = useQuery(GET_FAQS, {
 		fetchPolicy: 'network-only', // by default cache-first
 		variables: { input: { ...faqsInquiry, faqType: type.toUpperCase() } },
@@ -64,6 +75,9 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 		},
 	})
 
+	if (getFaqsError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		getFaqsRefetch({ input: faqsInquiry }).then()

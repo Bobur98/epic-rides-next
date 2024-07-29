@@ -10,15 +10,21 @@ import { useMutation, useQuery } from '@apollo/client'
 import { GET_FAVORITES } from '../../../apollo/user/query'
 import { Message } from '../../enums/common.enum'
 import { sweetMixinErrorAlert } from '../../sweetAlert'
+import { useRouter } from 'next/router'
 
 const MyFavorites: NextPage = () => {
 	const device = useDeviceDetect()
 	const [myFavorites, setMyFavorites] = useState<Product[]>([])
 	const [total, setTotal] = useState<number>(0)
 	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 })
+	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT)
+	const [likeTargetProduct, { error: createError }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getFavoritesLoading,
@@ -34,6 +40,10 @@ const MyFavorites: NextPage = () => {
 			setTotal(data?.getFavorites?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getFavoritesError) {
+		router.push('/_error')
+	}
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
 		setSearchFavorites({ ...searchFavorites, page: value })

@@ -15,18 +15,25 @@ import { T } from '../../types/common';
 import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation';
 import { Message } from '../../enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { useRouter } from 'next/router'
+import { error } from 'console'
 
 interface PopularProductsProps {
-	initialInput: ProductsInquiry;
+	initialInput: ProductsInquiry
 }
 
 const PopularProducts = (props: PopularProductsProps) => {
-	const { initialInput } = props;
-	const device = useDeviceDetect();
-	const [popularProducts, setPopularProducts] = useState<Product[]>([]);
+	const { initialInput } = props
+	const device = useDeviceDetect()
+	const [popularProducts, setPopularProducts] = useState<Product[]>([])
+	const router = useRouter()
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT); // POST METHOD like postman
+	const [likeTargetProduct, { error: createError }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getProductsLoading,
@@ -38,28 +45,32 @@ const PopularProducts = (props: PopularProductsProps) => {
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setPopularProducts(data?.getProducts?.list);
+			setPopularProducts(data?.getProducts?.list)
 		},
-	});
+	})
+
+	if (getProductsError) {
+		router.push('_error')
+	}
 	/** HANDLERS **/
 	const likeProductHandler = async (user: T, id: string) => {
 		try {
-			if (!id) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!id) return
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED)
 
 			// execute likeTargetProduct Mutation
 			await likeTargetProduct({
 				variables: { input: id },
-			});
-			await getProductsRefetch({ input: initialInput });
-			await sweetTopSmallSuccessAlert('success', 800);
+			})
+			await getProductsRefetch({ input: initialInput })
+			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
-	};
+	}
 
-	if (!popularProducts) return null;
+	if (!popularProducts) return null
 
 	if (device === 'mobile') {
 		return (
@@ -81,13 +92,13 @@ const PopularProducts = (props: PopularProductsProps) => {
 									<SwiperSlide key={product._id} className={'popular-product-slide'}>
 										<PopularProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
-								);
+								)
 							})}
 						</Swiper>
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	} else {
 		return (
 			<Stack className={'popular-products'}>
@@ -125,7 +136,7 @@ const PopularProducts = (props: PopularProductsProps) => {
 									<SwiperSlide key={product._id} className={'popular-product-slide'}>
 										<PopularProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
-								);
+								)
 							})}
 						</Swiper>
 					</Stack>
@@ -136,9 +147,9 @@ const PopularProducts = (props: PopularProductsProps) => {
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};;
+}
 
 PopularProducts.defaultProps = {
 	initialInput: {

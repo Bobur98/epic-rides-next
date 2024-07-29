@@ -46,6 +46,10 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 			setTotal(data?.getMemberFollowers?.metaCounter[0]?.total)
 		},
 	})
+
+	if (gerMemberFollowersError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.memberId)

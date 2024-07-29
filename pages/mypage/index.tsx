@@ -35,9 +35,22 @@ const MyPage: NextPage = () => {
 	const category: any = router.query?.category ?? 'myProfile'
 
 	/** APOLLO REQUESTS **/
-	const [subscribe] = useMutation(SUBSCRIBE)
-	const [unsubscribe] = useMutation(UNSUBSCRIBE)
-	const [likeTargetMember] = useMutation(LIKE_TARGET_MEMBER)
+	const [subscribe, { error: createSubscribeError }] = useMutation(SUBSCRIBE, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [unsubscribe, { error: createUnsubscribeError }] = useMutation(UNSUBSCRIBE, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [likeTargetMember, { error: createLikeError }] = useMutation(LIKE_TARGET_MEMBER, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+
 
 	/** LIFECYCLES **/
 	useEffect(() => {

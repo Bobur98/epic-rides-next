@@ -29,8 +29,16 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 	console.log(years)
 
 	/** APOLLO REQUESTS **/
-	const [createProduct] = useMutation(CREATE_PRODUCT)
-	const [updateProduct] = useMutation(UPDATE_PRODUCT)
+	const [createProduct, { error: createError }] = useMutation(CREATE_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [updateProduct, { error: createUpdateError }] = useMutation(UPDATE_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getProductLoading,
@@ -41,6 +49,10 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		variables: { input: router.query.productId },
 	})
+
+	if (getProductError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		setInsertProductData({

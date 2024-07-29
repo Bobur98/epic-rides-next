@@ -14,18 +14,23 @@ import { T } from '../../types/common';
 import { Message } from '../../enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { LIKE_TARGET_PRODUCT } from '../../../apollo/user/mutation';
+import { useRouter } from 'next/router'
 
 interface TopProductsProps {
-	initialInput: ProductsInquiry;
+	initialInput: ProductsInquiry
 }
 
 const TopProducts = (props: TopProductsProps) => {
-	const { initialInput } = props;
-	const device = useDeviceDetect();
-	const [topProducts, setTopProducts] = useState<Product[]>([]);
-
+	const { initialInput } = props
+	const device = useDeviceDetect()
+	const [topProducts, setTopProducts] = useState<Product[]>([])
+	const router = useRouter()
 	/** APOLLO REQUESTS **/
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT); // POST METHOD like postman
+	const [likeTargetProduct, { error: createError }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	}) // POST METHOD like postman
 
 	const {
 		loading: getProductsLoading,
@@ -37,26 +42,29 @@ const TopProducts = (props: TopProductsProps) => {
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setTopProducts(data?.getProducts?.list);
+			setTopProducts(data?.getProducts?.list)
 		},
-	});
+	})
+	if (getProductsError) {
+		router.push('/_error')
+	}
 	/** HANDLERS **/
 	const likeProductHandler = async (user: T, id: string) => {
 		try {
-			if (!id) return;
-			if (!user._id) throw new Error(Message.SOMETHING_WENT_WRONG);
+			if (!id) return
+			if (!user._id) throw new Error(Message.SOMETHING_WENT_WRONG)
 
 			// execute likeTargetProduct Mutation
 			await likeTargetProduct({
 				variables: { input: id },
-			});
-			await getProductsRefetch({ input: initialInput });
-			await sweetTopSmallSuccessAlert('success', 800);
+			})
+			await getProductsRefetch({ input: initialInput })
+			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
+			console.log('ERROR, likeProductHandler:', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
-	};
+	}
 
 	if (device === 'mobile') {
 		return (
@@ -78,13 +86,13 @@ const TopProducts = (props: TopProductsProps) => {
 									<SwiperSlide className={'top-product-slide'} key={product?._id}>
 										<TopProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
-								);
+								)
 							})}
 						</Swiper>
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	} else {
 		return (
 			<Stack className={'top-products'}>
@@ -121,15 +129,15 @@ const TopProducts = (props: TopProductsProps) => {
 									<SwiperSlide className={'top-product-slide'} key={product?._id}>
 										<TopProductCard product={product} likeProductHandler={likeProductHandler} />
 									</SwiperSlide>
-								);
+								)
 							})}
 						</Swiper>
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};;
+}
 
 TopProducts.defaultProps = {
 	initialInput: {

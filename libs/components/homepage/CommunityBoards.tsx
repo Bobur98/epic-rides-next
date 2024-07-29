@@ -8,18 +8,19 @@ import { useQuery } from '@apollo/client';
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
 import { T } from '../../types/common';
+import { useRouter } from 'next/router'
 
 const CommunityBoards = () => {
-	const device = useDeviceDetect();
+	const device = useDeviceDetect()
 	const [searchCommunity, setSearchCommunity] = useState({
 		page: 1,
 		limit: 6,
 		sort: 'createdAt',
 		direction: 'DESC',
-	});
-	const [newsArticles, setNewsArticles] = useState<BoardArticle[]>([]);
-	const [freeArticles, setFreeArticles] = useState<BoardArticle[]>([]);
-
+	})
+	const [newsArticles, setNewsArticles] = useState<BoardArticle[]>([])
+	const [freeArticles, setFreeArticles] = useState<BoardArticle[]>([])
+	const router = useRouter()
 	/** APOLLO REQUESTS **/
 	const {
 		loading: getNewsArticlesLoading,
@@ -31,10 +32,10 @@ const CommunityBoards = () => {
 		variables: { input: { ...searchCommunity, search: { articleCategory: BoardArticleCategory.NEWS } } },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setNewsArticles(data?.getBoardArticles?.list);
+			setNewsArticles(data?.getBoardArticles?.list)
 		},
-	});
-	console.log('article', newsArticles);
+	})
+	console.log('article', newsArticles)
 
 	const {
 		loading: getFreeArticlesLoading,
@@ -46,12 +47,17 @@ const CommunityBoards = () => {
 		variables: { input: { ...searchCommunity, search: { articleCategory: BoardArticleCategory.FREE } } },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setFreeArticles(data?.getBoardArticles?.list);
+			setFreeArticles(data?.getBoardArticles?.list)
 		},
-	});
-
+	})
+	if (getNewsArticlesError) {
+		router.push('/_error')
+	}
+	if (getFreeArticlesError) {
+		router.push('/_error')
+	}
 	if (device === 'mobile') {
-		return <div>COMMUNITY BOARDS (MOBILE)</div>;
+		return <div>COMMUNITY BOARDS (MOBILE)</div>
 	} else {
 		return (
 			<Stack className={'community-board'}>
@@ -69,7 +75,7 @@ const CommunityBoards = () => {
 							</Stack>
 							<Stack className={'card-wrap'}>
 								{newsArticles.map((article, index) => {
-									return <CommunityCard vertical={true} article={article} index={index} key={article?._id} />;
+									return <CommunityCard vertical={true} article={article} index={index} key={article?._id} />
 								})}
 							</Stack>
 						</Stack>
@@ -82,15 +88,15 @@ const CommunityBoards = () => {
 							</Stack>
 							<Stack className={'card-wrap vertical'}>
 								{freeArticles.map((article, index) => {
-									return <CommunityCard vertical={false} article={article} index={index} key={article?._id} />;
+									return <CommunityCard vertical={false} article={article} index={index} key={article?._id} />
 								})}
 							</Stack>
 						</Stack>
 					</Stack>
 				</Stack>
 			</Stack>
-		);
+		)
 	}
-};
+}
 
 export default CommunityBoards;

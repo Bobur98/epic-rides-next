@@ -9,20 +9,23 @@ import { appWithTranslation } from 'next-i18next';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import '../scss/mobile/main.scss';
+import ErrorBoundary from '../libs/components/ErrorBoundary'
 
 const App = ({ Component, pageProps }: AppProps) => {
 	// @ts-ignore
-	const [theme, setTheme] = useState(createTheme(light));
-	const client = useApollo(pageProps.initialApolloState);
+	const [theme, setTheme] = useState(createTheme(light))
+	const client = useApollo(pageProps.initialApolloState)
 
 	return (
-		<ApolloProvider client={client}>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<Component {...pageProps} />
-			</ThemeProvider>
-		</ApolloProvider>
-	);
-};
+		<ErrorBoundary>
+			<ApolloProvider client={client}>
+				<ThemeProvider theme={theme}>
+					<CssBaseline />
+					<Component {...pageProps} />
+				</ThemeProvider>
+			</ApolloProvider>
+		</ErrorBoundary>
+	)
+}
 
 export default appWithTranslation(App);

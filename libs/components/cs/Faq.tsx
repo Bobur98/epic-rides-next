@@ -64,6 +64,7 @@ const FaqsList: NextPage<FaqsListProps> = ({ initialInput, ...props }) => {
 		loading: getFaqsLoading,
 		data: getFaqsData,
 		refetch: getFaqsRefetch,
+		error: getFaqsError,
 	} = useQuery(GET_FAQS, {
 		fetchPolicy: 'network-only', // by default cache-first
 		variables: { input: { ...initialInput, faqType: type.toUpperCase() } },
@@ -73,6 +74,10 @@ const FaqsList: NextPage<FaqsListProps> = ({ initialInput, ...props }) => {
 			setTotal(data?.getFaqs?.metaCounter[0]?.total || 0)
 		},
 	})
+
+	if(getFaqsError) {
+		router.push("_error")
+	}
 
 	/** LIFECYCLES **/
 	useEffect(() => {

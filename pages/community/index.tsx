@@ -34,7 +34,11 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	if (articleCategory) initialInput.search.articleCategory = articleCategory
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE)
+	const [likeTargetBoardArticle, { error: createError }] = useMutation(LIKE_TARGET_BOARD_ARTICLE, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: boardArticlesLoading,
@@ -51,6 +55,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		},
 	})
 
+	if (boardArticlesError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (!query?.articleCategory)

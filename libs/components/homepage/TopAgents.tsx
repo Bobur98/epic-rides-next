@@ -36,6 +36,9 @@ const TopAgents = (props: TopAgentsProps) => {
 			setTopAgents(data?.getAgents?.list);
 		},
 	});
+	if (getAgentsError) {
+		router.push('/_error')
+	}
 	/** HANDLERS **/
 	console.log(topAgents, '-------');
 

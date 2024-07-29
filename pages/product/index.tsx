@@ -26,20 +26,24 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const ProductList: NextPage = ({ initialInput, ...props }: any) => {
-	const device = useDeviceDetect();
-	const router = useRouter();
+	const device = useDeviceDetect()
+	const router = useRouter()
 	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
-	);
-	const [products, setProducts] = useState<Product[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [sortingOpen, setSortingOpen] = useState(false);
-	const [filterSortName, setFilterSortName] = useState('New');
+	)
+	const [products, setProducts] = useState<Product[]>([])
+	const [total, setTotal] = useState<number>(0)
+	const [currentPage, setCurrentPage] = useState<number>(1)
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+	const [sortingOpen, setSortingOpen] = useState(false)
+	const [filterSortName, setFilterSortName] = useState('New')
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT) // POST METHOD like postman
+	const [likeTargetProduct, { error: createLikeError }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	}) // POST METHOD like postman
 
 	const {
 		loading: getProductsLoading,
@@ -56,17 +60,20 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 		},
 	})
 
+	if (getProductsError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.input) {
-			const inputObj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(inputObj);
+			const inputObj = JSON.parse(router?.query?.input as string)
+			setSearchFilter(inputObj)
 		}
 
-		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
-	}, [router]);
+		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page)
+	}, [router])
 
-	useEffect(() => {}, [searchFilter]);
+	useEffect(() => {}, [searchFilter])
 
 	/** HANDLERS **/
 	const likeProductHandler = async (user: T, id: string) => {
@@ -87,48 +94,48 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 	}
 
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
-		searchFilter.page = value;
+		searchFilter.page = value
 		await router.push(
 			`/product?input=${JSON.stringify(searchFilter)}`,
 			`/product?input=${JSON.stringify(searchFilter)}`,
 			{
 				scroll: false,
 			},
-		);
-		setCurrentPage(value);
-	};
+		)
+		setCurrentPage(value)
+	}
 
 	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {
-		setAnchorEl(e.currentTarget);
-		setSortingOpen(true);
-	};
+		setAnchorEl(e.currentTarget)
+		setSortingOpen(true)
+	}
 
 	const sortingCloseHandler = () => {
-		setSortingOpen(false);
-		setAnchorEl(null);
-	};
+		setSortingOpen(false)
+		setAnchorEl(null)
+	}
 
 	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
 		switch (e.currentTarget.id) {
 			case 'new':
-				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.ASC });
-				setFilterSortName('New');
-				break;
+				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.ASC })
+				setFilterSortName('New')
+				break
 			case 'lowest':
-				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.ASC });
-				setFilterSortName('Lowest Price');
-				break;
+				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.ASC })
+				setFilterSortName('Lowest Price')
+				break
 			case 'highest':
-				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.DESC });
-				setFilterSortName('Highest Price');
+				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.DESC })
+				setFilterSortName('Highest Price')
 		}
-		setSortingOpen(false);
-		setAnchorEl(null);
-	};
+		setSortingOpen(false)
+		setAnchorEl(null)
+	}
 	console.log(products, 'PRODUCTS')
 
 	if (device === 'mobile') {
-		return <h1>PRODUCTS MOBILE</h1>;
+		return <h1>PRODUCTS MOBILE</h1>
 	} else {
 		return (
 			<div id="product-list-page" style={{ position: 'relative' }}>
@@ -210,7 +217,7 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 					</Stack>
 				</div>
 			</div>
-		);
+		)
 	}
 };
 

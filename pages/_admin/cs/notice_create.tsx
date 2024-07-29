@@ -34,8 +34,16 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 	console.log(years)
 
 	/** APOLLO REQUESTS **/
-	const [createNotice] = useMutation(CREATE_NOTICE_BY_ADMIN)
-	const [updateNotice] = useMutation(UPDATE_NOTICE_BY_ADMIN)
+	const [createNotice, { error: createError }] = useMutation(CREATE_NOTICE_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+	const [updateNotice, { error: createUpdateError }] = useMutation(UPDATE_NOTICE_BY_ADMIN, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getNoticeLoading,
@@ -51,6 +59,9 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 		},
 	})
 
+	if (getNoticeError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		setInsertNoticeData({

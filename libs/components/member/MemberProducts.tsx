@@ -34,6 +34,10 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			setTotal(data?.getProducts?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getProductsError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		getProductsRefetch().then()

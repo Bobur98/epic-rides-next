@@ -19,9 +19,8 @@ import { CommentGroup } from '../../libs/enums/comment.enum'
 import { Messages, REACT_APP_API_URL } from '../../libs/config'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { CREATE_COMMENT, LIKE_TARGET_PRODUCT } from '../../apollo/user/mutation'
-import { GET_MEMBER, GET_PRODUCTS } from '../../apollo/user/query'
+import { GET_COMMENTS, GET_MEMBER, GET_PRODUCTS } from '../../apollo/user/query'
 import { T } from '../../libs/types/common'
-import { GET_COMMENTS } from '../../apollo/admin/query'
 import { Message } from '../../libs/enums/common.enum'
 import ProductCard from '../../libs/components/product/ProductCard'
 
@@ -50,8 +49,17 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	})
 
 	/** APOLLO REQUESTS **/
-	const [createComment] = useMutation(CREATE_COMMENT)
-	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT)
+	const [createComment, { error: createError }] = useMutation(CREATE_COMMENT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
+
+	const [likeTargetProduct, { error: createLikeError }] = useMutation(LIKE_TARGET_PRODUCT, {
+		onError: (error) => {
+			router.push('/_error')
+		},
+	})
 
 	const {
 		loading: getMemberLoading,
@@ -114,6 +122,16 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 			setCommentTotal(data?.getComments?.metaCounter[0]?.total ?? 0)
 		},
 	})
+
+	if (getMemberError) {
+		router.push('/_error')
+	}
+	if (getProductsError) {
+		router.push('/_error')
+	}
+	if (getCommentError) {
+		router.push('/_error')
+	}
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.agentId) setMbId(router.query.agentId as string)
