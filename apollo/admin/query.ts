@@ -368,3 +368,27 @@ export const GET_NOTICES_BY_ADMIN = gql`
 		}
 	}
 `
+
+export const GET_NOTIFICATION = gql`
+	query GetNotifications($input: GetNotificationsInquiry!) {
+		getNotifications(input: $input) {
+			list {
+				_id
+				notificationType
+				notificationStatus
+				notificationGroup
+				notificationTitle
+				notificationDesc
+				authorId
+				receiverId
+				productId
+				articleId
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`

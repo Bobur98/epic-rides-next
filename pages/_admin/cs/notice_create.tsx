@@ -161,7 +161,7 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 					<Typography className="main-title">Add New Notice</Typography>
 				</Stack>
 
-				<div>
+				<div>s
 					<Stack className="config">
 						<Stack className="description-box">
 							<Stack className="config-row">

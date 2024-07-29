@@ -34,7 +34,7 @@ const PopularProductCard = (props: PopularProductCardProps) => {
 						query: { id: product?._id },
 					}}
 				>
-					<img className="product-image" src={`${process.env.REACT_APP_API_URL}/${product?.productImages[0]}`} />
+					<img className="product-image"  src={`${process.env.REACT_APP_API_URL}/${product?.productImages[0]}`} />
 				</Link>
 				{product && product?.productRank >= topProductRank ? (
 					<div className={'status'}>

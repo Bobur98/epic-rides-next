@@ -13,89 +13,202 @@ import { CaretDown } from 'phosphor-react';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../apollo/store';
-import { Logout } from '@mui/icons-material';
-import { REACT_APP_API_URL } from '../config';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client'
+import { userVar } from '../../apollo/store'
+import { Logout } from '@mui/icons-material'
+import { REACT_APP_API_URL } from '../config'
+import { NotificationUpdate } from '../types/notification/notification.update'
+import { NotificDto } from '../types/notification/notification'
+import { UPDATE_NOTIFICATION } from '../../apollo/user/mutation'
+import { GET_NOTIFICATIONS } from '../../apollo/user/query'
+import { NotificationStatus } from '../enums/notification.enum'
+import { T } from '../types/common'
 
 const Top = () => {
-	const device = useDeviceDetect();
-	const user = useReactiveVar(userVar);
-	const { t, i18n } = useTranslation('common');
-	const router = useRouter();
-	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
-	const [lang, setLang] = useState<string | null>('en');
-	const drop = Boolean(anchorEl2);
-	const [colorChange, setColorChange] = useState(false);
-	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
-	let open = Boolean(anchorEl);
-	const [bgColor, setBgColor] = useState<boolean>(false);
-	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
-	const logoutOpen = Boolean(logoutAnchor);
+	const device = useDeviceDetect()
+	const user = useReactiveVar(userVar)
+	const { t, i18n } = useTranslation('common')
+	const router = useRouter()
+	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null)
+	const [lang, setLang] = useState<string | null>('en')
+	const drop = Boolean(anchorEl2)
+	const [colorChange, setColorChange] = useState(false)
+	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null)
+	let open = Boolean(anchorEl)
+	const [bgColor, setBgColor] = useState<boolean>(false)
+	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null)
+	const logoutOpen = Boolean(logoutAnchor)
+
+	const [notificationAnchorEl, setNotificationAnchorEl] = useState<HTMLElement | null>(null)
+	const [notifications, setNotifications] = useState<NotificDto[]>([])
+	const notificationOpen = Boolean(notificationAnchorEl)
+	const [unreadCount, setUnreadCount] = useState(0)
+
+	// APOLLO REQUEST
+	const [updateNotification] = useMutation(UPDATE_NOTIFICATION)
+
+	const {
+		loading: notificationsLoading,
+		data: notificationsData,
+		error: notificationsError,
+		refetch: refetchNotifications,
+	} = useQuery(GET_NOTIFICATIONS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 100, search: { receiverId: '' } } },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			if (data?.getNotifcations?.list) {
+				setNotifications(data?.getNotifcations?.list)
+				const unread = data?.getNotifcations?.list.filter(
+					(notification: any) => notification.notificationStatus === NotificationStatus.WAIT,
+				).length
+				setUnreadCount(unread)
+			}
+		},
+	})
 
 	/** LIFECYCLES **/
+
+	useEffect(() => {
+		if (notificationsData) {
+			setNotifications(notificationsData.getNotifications.list)
+			const unread = notificationsData.getNotifications.list.filter(
+				(notification: any) => notification.notificationStatus === NotificationStatus.WAIT,
+			).length
+			setUnreadCount(unread)
+		}
+	}, [notificationsData])
+
+	useEffect(() => {
+		if (notificationsData?.getNotifcations?.list) {
+			setNotifications(notificationsData.getNotifcations.list)
+			notificationsData.getNotifications.list.forEach((notification: { _id: any }) => {
+				console.log('Notification_id:', notification._id) // check if id is exist
+			})
+		}
+	}, [notificationsData])
+
+	let notifics = notificationsData?.getNotifications?.list
+
+	const [hasNewNotifications, setHasNewNotifications] = useState(false)
+
+	useEffect(() => {
+		if (
+			notifications &&
+			notifications.some((notification) => notification.notificationStatus === NotificationStatus.WAIT)
+		) {
+			setHasNewNotifications(true)
+		} else {
+			setHasNewNotifications(false)
+		}
+	}, [notifications])
+
+	useEffect(() => {
+		if (!notificationOpen) {
+			refetchNotifications()
+		}
+	}, [notificationOpen, refetchNotifications])
+
 	useEffect(() => {
 		if (localStorage.getItem('locale') === null) {
-			localStorage.setItem('locale', 'en');
-			setLang('en');
+			localStorage.setItem('locale', 'en')
+			setLang('en')
 		} else {
-			setLang(localStorage.getItem('locale'));
+			setLang(localStorage.getItem('locale'))
 		}
-	}, [router]);
+	}, [router])
 
 	useEffect(() => {
 		switch (router.pathname) {
 			case '/product/detail':
-				setBgColor(true);
-				break;
+				setBgColor(true)
+				break
 			default:
-				break;
+				break
 		}
-	}, [router]);
+	}, [router])
 
 	useEffect(() => {
-		const jwt = getJwtToken();
-		if (jwt) updateUserInfo(jwt);
-	}, []);
+		const jwt = getJwtToken()
+		if (jwt) updateUserInfo(jwt)
+	}, [])
 
 	/** HANDLERS **/
 	const langClick = (e: any) => {
-		setAnchorEl2(e.currentTarget);
-	};
+		setAnchorEl2(e.currentTarget)
+	}
 
 	const langClose = () => {
-		setAnchorEl2(null);
-	};
+		setAnchorEl2(null)
+	}
 
 	const langChoice = useCallback(
 		async (e: any) => {
-			setLang(e.target.id);
-			localStorage.setItem('locale', e.target.id);
-			setAnchorEl2(null);
-			await router.push(router.asPath, router.asPath, { locale: e.target.id });
+			setLang(e.target.id)
+			localStorage.setItem('locale', e.target.id)
+			setAnchorEl2(null)
+			await router.push(router.asPath, router.asPath, { locale: e.target.id })
 		},
 		[router],
-	);
+	)
 
 	const changeNavbarColor = () => {
 		if (window.scrollY >= 50) {
-			setColorChange(true);
+			setColorChange(true)
 		} else {
-			setColorChange(false);
+			setColorChange(false)
 		}
-	};
+	}
 
 	const handleClose = () => {
-		setAnchorEl(null);
-	};
+		setAnchorEl(null)
+	}
 
 	const handleHover = (event: any) => {
 		if (anchorEl !== event.currentTarget) {
-			setAnchorEl(event.currentTarget);
+			setAnchorEl(event.currentTarget)
 		} else {
-			setAnchorEl(null);
+			setAnchorEl(null)
 		}
-	};
+	}
+
+	const handleNotificationClick = (event: React.MouseEvent<SVGSVGElement>) => {
+		setNotificationAnchorEl(event.currentTarget as unknown as HTMLElement)
+	}
+
+	const handleMenuItemClick = (notification: NotificDto) => {
+		if (!notification.productId && !notification.articleId) {
+			router.push(`/member?memberId=${notification.authorId}`)
+		} else if (notification.articleId) {
+			router.push(`/community/detail?id=${notification.articleId}`)
+		} else if (notification.productId) {
+			router.push(`/product/detail?id=${notification.productId}`)
+		}
+
+		const updateNotification: NotificationUpdate = {
+			_id: notification._id,
+			notificationStatus: NotificationStatus.READ,
+		}
+		updateNotificationHandler(updateNotification)
+	}
+
+	const handleNotificationClose = () => {
+		setNotificationAnchorEl(null)
+	}
+
+	const updateNotificationHandler = async (updateData: NotificationUpdate) => {
+		try {
+			console.log('+updateData:', updateData)
+			await updateNotification({
+				variables: {
+					input: updateData,
+				},
+			})
+			await refetchNotifications
+		} catch (err: any) {
+			console.log('Error on updateNotificationHandler', err.message)
+		}
+	}
 
 	const StyledMenu = styled((props: MenuProps) => (
 		<Menu
@@ -133,10 +246,10 @@ const Top = () => {
 				},
 			},
 		},
-	}));
+	}))
 
 	if (typeof window !== 'undefined') {
-		window.addEventListener('scroll', changeNavbarColor);
+		window.addEventListener('scroll', changeNavbarColor)
 	}
 
 	if (device == 'mobile') {
@@ -238,7 +351,102 @@ const Top = () => {
 							)}
 
 							<div className={'lan-box'}>
-								{user?._id && <NotificationsOutlinedIcon className={'notification-icon'} />}
+								{user?._id && (
+									<div style={{ position: 'relative', display: 'inline-block', color: 'white', cursor: 'pointer' }}>
+										<NotificationsOutlinedIcon className={'notification-icon'} onClick={handleNotificationClick} />
+										{hasNewNotifications && (
+											<div
+												style={{
+													position: 'absolute',
+													top: '-10px',
+													right: '-3px',
+													width: '15px',
+													height: '15px',
+													borderRadius: '50%',
+													backgroundColor: '#ef1d26',
+												}}
+											>
+												{' '}
+												{unreadCount > 0 && (
+													<span
+														style={{ fontSize: '12px', fontWeight: '600', display: 'flex', justifyContent: 'center' }}
+													>
+														{unreadCount}
+													</span>
+												)}
+											</div>
+										)}
+										<Menu
+											anchorEl={notificationAnchorEl}
+											open={Boolean(notificationAnchorEl)}
+											onClose={handleNotificationClose}
+											MenuListProps={{
+												'aria-labelledby': 'notification-button',
+											}}
+											PaperProps={{
+												style: {
+													padding: '20px',
+													marginTop: '40px',
+													minHeight: '400px',
+													minWidth: '400px',
+													maxHeight: '400px',
+													width: '400px',
+													whiteSpace: 'normal',
+													wordWrap: 'break-word',
+													borderRadius: '22px',
+													background: 'white',
+													fontSize: '16px',
+												},
+											}}
+										>
+											<strong>Notifications</strong>
+											{!notificationsLoading && (!notifics || notifics.length === 0) && (
+												<MenuItem style={{ margin: '100' }}>No notifications</MenuItem>
+											)}
+
+											{notificationsLoading && <MenuItem>Loading...</MenuItem>}
+											{notifics &&
+												notifics.map((notification: any) => {
+													const isRead = notification.notificationStatus === NotificationStatus.READ
+													const notSeen = notification.notificationStatus === NotificationStatus.WAIT
+
+													return (
+														<MenuItem
+															key={notification._id}
+															onClick={() => handleMenuItemClick(notification)}
+															style={{
+																whiteSpace: 'normal',
+																wordWrap: 'break-word',
+																backgroundColor: isRead ? '#d2e4f7' : '#f8c2c2',
+																borderRadius: 20,
+																padding: '10px',
+																margin: 10,
+															}}
+														>
+															<div style={{ display: 'flex', alignItems: 'center' }}>
+																{notSeen && (
+																	<div
+																		style={{
+																			width: '10px',
+																			height: '10px',
+																			borderRadius: '50%',
+																			backgroundColor: '#42a5f5',
+																			marginRight: '20px',
+																		}}
+																	/>
+																)}
+
+																<div>
+																	<strong>{notification.notificationTitle}</strong>
+																	<p>{notification.notificationDesc}</p>
+																</div>
+															</div>
+														</MenuItem>
+													)
+												})}
+										</Menu>
+									</div>
+								)}
 								<Button
 									disableRipple
 									className="btn-lang"
@@ -287,6 +495,6 @@ const Top = () => {
 			</Stack>
 		)
 	}
-};
+}
 
 export default withRouter(Top);

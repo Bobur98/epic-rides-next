@@ -386,3 +386,25 @@ export const DELETE_NOTICE_BY_ADMIN = gql`
 		}
 	}
 `
+/**************************
+ *      NOTIFICATION      *
+ *************************/
+
+export const CREATE_NOTIFICATION = gql`
+	mutation CreateNotification($input: CreateNotificationInput!) {
+		createNotification(input: $input) {
+			_id
+			notificationType
+			notificationStatus
+			notificationGroup
+			notificationTitle
+			notificationDesc
+			authorId
+			receiverId
+			productId
+			articleId
+			createdAt
+			updatedAt
+		}
+	}
+`;

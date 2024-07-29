@@ -890,3 +890,29 @@ export const GET_NOTICES = gql`
 		}
 	}
 `
+
+/**************************
+ *      NOTIFICATION      *
+ *************************/
+
+export const GET_NOTIFICATIONS = gql`
+	query GetNotifications($input: NotificationsInquiry!) {
+		getNotifications(input: $input) {
+			list {
+				_id
+				notificationType
+				notificationStatus
+				notificationGroup
+				notificationTitle
+				notificationDesc
+				authorId
+				receiverId
+				productId
+				articleId
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;

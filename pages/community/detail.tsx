@@ -149,14 +149,14 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED)
 
 			setLikeLoading(true)
-			// execute likeTargetProperty Mutation
+			// execute likeTargetProduct Mutation
 			await likeTargetBoardArticle({
 				variables: { input: id },
 			})
 			await boardArticlesRefetch({ input: articleId })
 			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message)
+			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		} finally {
 			setLikeLoading(false)

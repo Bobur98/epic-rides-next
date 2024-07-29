@@ -13,79 +13,80 @@ import { useTranslation } from 'next-i18next';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import { Height } from '@mui/icons-material'
 
 const withLayoutBasic = (Component: any) => {
 	return (props: any) => {
-		const router = useRouter();
-		const { t, i18n } = useTranslation('common');
-		const device = useDeviceDetect();
-		const [authHeader, setAuthHeader] = useState<boolean>(false);
-		const user = useReactiveVar(userVar);
+		const router = useRouter()
+		const { t, i18n } = useTranslation('common')
+		const device = useDeviceDetect()
+		const [authHeader, setAuthHeader] = useState<boolean>(false)
+		const user = useReactiveVar(userVar)
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
 				desc = '',
-				bgImage = '';
+				bgImage = ''
 
 			switch (router.pathname) {
 				case '/product':
-					title = 'Product Search';
-					desc = 'We are glad to see you again!';
+					title = 'Product Search'
+					desc = 'We are glad to see you again!'
 					bgImage = '/img/banner/bgProduct.jpg'
-					break;
+					break
 				case '/agent':
-					title = 'Agents';
-					desc = 'Home / For Rent';
+					title = 'Agents'
+					desc = 'Home / For Rent'
 					bgImage = '/img/banner/agentsBg2.jpg'
-					break;
+					break
 				case '/agent/detail':
-					title = 'Agent Page';
-					desc = 'Home / For Rent';
+					title = 'Agent Page'
+					desc = 'Home / For Rent'
 					bgImage = '/img/banner/bgProduct2.jpg'
-					break;
+					break
 				case '/mypage':
-					title = 'my page';
-					desc = 'Home / For Rent';
+					title = 'my page'
+					desc = 'Home / For Rent'
 					bgImage = '/img/banner/bgProduct3.jpg'
-					break;
+					break
 				case '/community':
-					title = 'Community';
-					desc = 'Home / For Rent';
+					title = 'Community'
+					desc = 'Home / For Rent'
 					bgImage = '/img/banner/communityBg2.jpg'
-					break;
+					break
 				case '/community/detail':
-					title = 'Community Detail';
-					desc = 'Home / For Rent';
+					title = 'Community Detail'
+					desc = 'Home / For Rent'
 					bgImage = '/img/banner/communityBg.jpg'
-					break;
+					break
 				case '/cs':
-					title = 'CS';
-					desc = 'We are glad to see you again!';
+					title = 'CS'
+					desc = 'We are glad to see you again!'
 					bgImage = '/img/banner/bgProduct3.jpg'
-					break;
+					break
 				case '/account/join':
-					title = 'Login/Signup';
-					desc = 'Authentication Process';
+					title = 'Login/Signup'
+					desc = 'Authentication Process'
 					bgImage = '/img/banner/bgProduct3.jpg'
-					setAuthHeader(true);
-					break;
+					setAuthHeader(true)
+					break
 				case '/member':
-					title = 'Member Page';
-					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header1.svg';
-					break;
+					title = 'Member Page'
+					desc = 'Home / For Rent'
+					bgImage = '/img/banner/bgProduct3.jpg'
+					break
 				default:
-					break;
+					break
 			}
 
-			return { title, desc, bgImage };
-		}, [router.pathname]);
+			return { title, desc, bgImage }
+		}, [router.pathname])
 
 		/** LIFECYCLES **/
 		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-		}, []);
+			const jwt = getJwtToken()
+			if (jwt) updateUserInfo(jwt)
+		}, [])
 
 		/** HANDLERS **/
 
@@ -110,7 +111,7 @@ const withLayoutBasic = (Component: any) => {
 						</Stack>
 					</Stack>
 				</>
-			);
+			)
 		} else {
 			return (
 				<>
@@ -126,6 +127,7 @@ const withLayoutBasic = (Component: any) => {
 						<Stack
 							className={`header-basic ${authHeader && 'auth'}`}
 							style={{
+								height: '650px',
 								backgroundImage: `url(${memoizedValues.bgImage})`,
 								backgroundSize: 'cover',
 								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
@@ -148,9 +150,9 @@ const withLayoutBasic = (Component: any) => {
 						</Stack>
 					</Stack>
 				</>
-			);
+			)
 		}
-	};
-};
+	}
+}
 
 export default withLayoutBasic;
