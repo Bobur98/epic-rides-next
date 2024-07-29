@@ -124,7 +124,9 @@ export const FaqArticlesPanelList = (props: FaqPanelListType) => {
 								return (
 									<TableRow hover key={faq?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 										<TableCell align="center">{faq.faqType}</TableCell>
-										<TableCell align="center">{faq.faqQuestion}</TableCell>
+										<TableCell align="center">
+											<Link href={`/_admin/cs/faq_create?faqId=${faq._id}`}>{faq.faqQuestion}</Link>
+										</TableCell>
 										<TableCell align="center">{faq.faqAnswer}</TableCell>
 										<TableCell align="center">
 											<Button onClick={(e: any) => menuIconClickHandler(e, faq._id)} className={'badge success'}>

@@ -709,6 +709,7 @@ export const GET_FAQ = gql`
 			faqQuestion
 			faqAnswer
 			faqType
+			faqStatus
 			memberData {
 				_id
 				memberType

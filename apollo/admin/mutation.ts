@@ -370,16 +370,6 @@ export const UPDATE_NOTICE_BY_ADMIN = gql`
 				updatedAt
 				deletedAt
 				accessToken
-				meLiked {
-					memberId
-					likeRefId
-					myFavorite
-				}
-				meFollowed {
-					followingId
-					followerId
-					myFollowing
-				}
 			}
 		}
 	}

@@ -2,24 +2,29 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, Button, Stack, Typography } from '@mui/material'
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client'
 import { userVar } from '../../../apollo/store'
-import { GET_FAQ } from '../../../apollo/user/query'
+import { GET_FAQ, GET_NOTICE } from '../../../apollo/user/query'
 import { getJwtToken } from '../../../libs/auth'
 import useDeviceDetect from '../../../libs/hooks/useDeviceDetect'
 import { sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
-import { FaqStatus, FaqType } from '../../../libs/enums/faq.enum'
-import { CREATE_FAQ_BY_ADMIN, UPDATE_FAQ_BY_ADMIN } from '../../../apollo/admin/mutation'
-import { FaqInput } from '../../../libs/types/faq/faq.input'
+import { NoticeStatus, NoticeType } from '../../../libs/enums/notice.enum'
+import {
+	CREATE_FAQ_BY_ADMIN,
+	CREATE_NOTICE_BY_ADMIN,
+	UPDATE_FAQ_BY_ADMIN,
+	UPDATE_NOTICE_BY_ADMIN,
+} from '../../../apollo/admin/mutation'
+import { NoticeInput } from '../../../libs/types/notice/notice.input'
 import { useRouter } from 'next/router'
 import { T } from '../../../libs/types/common'
 
-const AddFaq = ({ initialValues, ...props }: any) => {
+const AddNotice = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect()
 	const router = useRouter()
 	const inputRef = useRef<any>(null)
-	const [insertFaqData, setInsertFaqData] = useState<FaqInput>(initialValues)
-	const [faqType, setFaqType] = useState<FaqType[]>(Object.values(FaqType))
-	const [faqStatus, setFaqStatus] = useState<FaqStatus[]>(Object.values(FaqStatus))
-	const [faqs, setFaqs] = useState<FaqType[]>([])
+	const [insertNoticeData, setInsertNoticeData] = useState<NoticeInput>(initialValues)
+	const [noticeType, setNoticeType] = useState<NoticeType[]>(Object.values(NoticeType))
+	const [noticeStatus, setNoticeStatus] = useState<NoticeStatus[]>(Object.values(NoticeStatus))
+	const [notices, setNotices] = useState<NoticeType[]>([])
 	const [total, setTotal] = useState<number>(0)
 	const token = getJwtToken()
 	const user = useReactiveVar(userVar)
@@ -29,48 +34,47 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 	console.log(years)
 
 	/** APOLLO REQUESTS **/
-	const [createFaq] = useMutation(CREATE_FAQ_BY_ADMIN)
-	const [updateFaq] = useMutation(UPDATE_FAQ_BY_ADMIN)
+	const [createNotice] = useMutation(CREATE_NOTICE_BY_ADMIN)
+	const [updateNotice] = useMutation(UPDATE_NOTICE_BY_ADMIN)
 
 	const {
-		loading: getFaqLoading,
-		data: getFaqData,
-		error: getFaqError,
-		refetch: getFaqRefetch,
-	} = useQuery(GET_FAQ, {
+		loading: getNoticeLoading,
+		data: getNoticeData,
+		error: getNoticeError,
+		refetch: getNoticeRefetch,
+	} = useQuery(GET_NOTICE, {
 		fetchPolicy: 'network-only',
-		variables: { input: router.query.faqId },
+		variables: { input: router.query.noticeId },
 		onCompleted: (data: T) => {
-			setFaqs(data?.getFaqs?.list || [])
-			setTotal(data?.getFaqs?.metaCounter[0]?.total || 0)
+			setNotices(data?.getNotices?.list || [])
+			setTotal(data?.getNotices?.metaCounter[0]?.total || 0)
 		},
 	})
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		setInsertFaqData({
-			...insertFaqData,
-			faqQuestion: getFaqData?.getFaq ? getFaqData?.getFaq?.faqQuestion : '',
-			faqAnswer: getFaqData?.getFaq ? getFaqData?.getFaq?.faqAnswer : '',
-			faqType: getFaqData?.getFaq ? getFaqData?.getFaq?.faqType : '',
-			faqStatus: getFaqData?.getFaq ? getFaqData?.getFaq?.faqStatus : '',
+		setInsertNoticeData({
+			...insertNoticeData,
+			noticeContent: getNoticeData?.getNotice ? getNoticeData?.getNotice?.noticeContent : '',
+			noticeType: getNoticeData?.getNotice ? getNoticeData?.getNotice?.noticeType : '',
+			noticeStatus: getNoticeData?.getNotice ? getNoticeData?.getNotice?.noticeStatus : '',
 		})
-	}, [getFaqLoading, getFaqData])
+	}, [getNoticeLoading, getNoticeData])
 
-	console.log(getFaqData?.getFaq, ' *****************')
+	console.log(getNoticeData?.getNotice, ' *****************')
 
 	/** HANDLERS **/
 
 	const doDisabledCheck = () => {
 		if (
 			// @ts-ignore
-			insertFaqData.faqQuestion === '' || // @ts-ignore
+			insertNoticeData.noticeContent === '' || // @ts-ignore
 			// @ts-ignore
-			insertFaqData.faqAnswer === '' ||
+			insertNoticeData.noticeAnswer === '' ||
 			// @ts-ignore
-			insertFaqData.faqType === '' ||
+			insertNoticeData.noticeType === '' ||
 			// @ts-ignore
-			insertFaqData.faqStatus === '' // @ts-ignore
+			insertNoticeData.noticeStatus === '' // @ts-ignore
 		) {
 			return true
 		}
@@ -79,7 +83,7 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 	const cancelBtnHandler = async () => {
 		try {
 			await router.push({
-				pathname: '/_admin/cs/faq',
+				pathname: '/_admin/cs/notice',
 				// query: {
 				// 	category: 'Motorcycle',
 				// },
@@ -89,17 +93,17 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 		}
 	}
 
-	const insertFaqHandler = useCallback(async () => {
+	const insertNoticeHandler = useCallback(async () => {
 		try {
-			const result = await createFaq({
+			const result = await createNotice({
 				variables: {
-					input: insertFaqData,
+					input: insertNoticeData,
 				},
 			})
 
 			await sweetMixinSuccessAlert('This question has been created successfully')
 			await router.push({
-				pathname: '/_admin/cs/faq',
+				pathname: '/_admin/cs/notice',
 				// query: {
 				// 	category: 'Motorcycle',
 				// },
@@ -107,15 +111,15 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 		} catch (error) {
 			sweetErrorHandling(error).then()
 		}
-	}, [insertFaqData])
+	}, [insertNoticeData])
 
-	const updateFaqHandler = useCallback(async () => {
+	const updateNoticeHandler = useCallback(async () => {
 		try {
 			// @ts-ignore
-			insertFaqData._id = getFaqData?.getFaq?._id
-			const result = await updateFaq({
+			insertNoticeData._id = getNoticeData?.getNotice?._id
+			const result = await updateNotice({
 				variables: {
-					input: insertFaqData,
+					input: insertNoticeData,
 				},
 			})
 
@@ -129,21 +133,21 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 		} catch (error) {
 			sweetErrorHandling(error).then()
 		}
-	}, [insertFaqData])
+	}, [insertNoticeData])
 
 	// if (user?.memberType !== 'ADMIN') {
 	// 	router.push('mypage')
 	// }
 
-	console.log('+insertFaqData', insertFaqData)
+	console.log('+insertNoticeData', insertNoticeData)
 
 	if (device === 'mobile') {
-		return <div>ADD NEW QUESTION MOBILE PAGE</div>
+		return <div>ADD NEW NOTICE PAGE</div>
 	} else {
 		return (
 			<div className="add-question-page">
 				<Stack className="main-title-box">
-					<Typography className="main-title">Add New Friquendly Asked Question</Typography>
+					<Typography className="main-title">Add New Notice</Typography>
 				</Stack>
 
 				<div>
@@ -151,25 +155,15 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 						<Stack className="description-box">
 							<Stack className="config-row">
 								<Stack className="price-year-after-price">
-									<Typography className="title">Question</Typography>
+									<Typography className="title">Notice Content</Typography>
 									<input
 										type="text"
 										className="description-input"
-										placeholder={'question'}
-										value={insertFaqData.faqQuestion}
-										onChange={({ target: { value } }) => setInsertFaqData({ ...insertFaqData, faqQuestion: value })}
-									/>
-								</Stack>
-							</Stack>
-							<Stack className="config-row">
-								<Stack className="price-year-after-price">
-									<Typography className="title">Answer</Typography>
-									<input
-										type="text"
-										className="description-input"
-										placeholder={'question'}
-										value={insertFaqData.faqAnswer}
-										onChange={({ target: { value } }) => setInsertFaqData({ ...insertFaqData, faqAnswer: value })}
+										placeholder={'notice'}
+										value={insertNoticeData.noticeContent}
+										onChange={({ target: { value } }) =>
+											setInsertNoticeData({ ...insertNoticeData, noticeContent: value })
+										}
 									/>
 								</Stack>
 							</Stack>
@@ -178,18 +172,18 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 									<Typography className="title">Select Type</Typography>
 									<select
 										className={'select-description'}
-										defaultValue={insertFaqData.faqType || 'select'}
-										value={insertFaqData.faqType || 'select'}
+										defaultValue={insertNoticeData.noticeType || 'select'}
+										value={insertNoticeData.noticeType || 'select'}
 										onChange={({ target: { value } }) =>
 											// @ts-ignore
-											setInsertFaqData({ ...insertFaqData, faqType: value.toUpperCase() })
+											setInsertNoticeData({ ...insertNoticeData, noticeType: value.toUpperCase() })
 										}
 									>
 										<>
 											<option selected={true} disabled={true} value={'select'}>
 												Select
 											</option>
-											{faqType.map((type: any) => (
+											{noticeType.map((type: any) => (
 												<option value={`${type}`} key={type}>
 													{type}
 												</option>
@@ -203,18 +197,18 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 									<Typography className="title">Select Status</Typography>
 									<select
 										className={'select-description'}
-										defaultValue={insertFaqData.faqStatus || 'select'}
-										value={insertFaqData.faqStatus || 'select'}
+										defaultValue={insertNoticeData.noticeStatus || 'select'}
+										value={insertNoticeData.noticeStatus || 'select'}
 										onChange={({ target: { value } }) =>
 											// @ts-ignore
-											setInsertFaqData({ ...insertFaqData, faqStatus: value.toUpperCase() })
+											setInsertNoticeData({ ...insertNoticeData, noticeStatus: value.toUpperCase() })
 										}
 									>
 										<>
 											<option selected={true} disabled={true} value={'select'}>
 												Select
 											</option>
-											{faqStatus.map((location: any) => (
+											{noticeStatus.map((location: any) => (
 												<option value={`${location}`} key={location}>
 													{location}
 												</option>
@@ -232,12 +226,12 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 								<Typography className="next-button-text">Cancel</Typography>
 							</Button>
 							<Box>
-								{router.query.faqId ? (
-									<Button className="next-button" disabled={doDisabledCheck()} onClick={updateFaqHandler}>
+								{router.query.noticeId ? (
+									<Button className="next-button" disabled={doDisabledCheck()} onClick={updateNoticeHandler}>
 										<Typography className="next-button-text">Save</Typography>
 									</Button>
 								) : (
-									<Button className="next-button" disabled={doDisabledCheck()} onClick={insertFaqHandler}>
+									<Button className="next-button" disabled={doDisabledCheck()} onClick={insertNoticeHandler}>
 										<Typography className="next-button-text">Save</Typography>
 									</Button>
 								)}
@@ -250,13 +244,12 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 	}
 }
 
-AddFaq.defaultProps = {
+AddNotice.defaultProps = {
 	initialValues: {
-		faqQuestion: '',
-		faqAnswer: '',
-		faqType: '',
-		faqStatus: '',
+		noticeContent: '',
+		noticeType: '',
+		noticeStatus: '',
 	},
 }
 
-export default AddFaq
+export default AddNotice
