@@ -18,6 +18,7 @@ import { ProductsInquiry } from '../../types/product/product.input'
 import { useRouter } from 'next/router'
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import { productYears, thisYear } from '../../config'
 
 const MenuProps = {
 	PaperProps: {
@@ -431,6 +432,7 @@ const Filter = (props: FilterType) => {
 		[searchFilter],
 	)
 	const productBrandHandler = useCallback(async (value: number, type: string) => {}, [searchFilter])
+
 	const productYearsHandler = useCallback(
 		async (value: number, type: string) => {
 			if (type == 'start') {
@@ -639,7 +641,7 @@ const Filter = (props: FilterType) => {
 							value={searchFilter?.search?.engineRangeCc?.end}
 							onChange={(e: any) => {
 								if (e.target.value >= 0) {
-									productEngineCcHandler(e.target.value, 'start')
+									productEngineCcHandler(e.target.value, 'end')
 								}
 							}}
 						/>
@@ -737,13 +739,8 @@ const Filter = (props: FilterType) => {
 					<div className="year-selector">
 						<select
 							// @ts-ignore
-							value={searchFilter?.search?.yearsRange?.start}
-							onChange={(e: any) =>
-								setSearchFilter({
-									...searchFilter,
-									yearsRange: { ...searchFilter?.search?.yearsRange, start: Number(e.target.value) },
-								})
-							}
+							value={searchFilter?.search?.yearsRange?.start ?? 2000}
+							onChange={(e: any) => productYearsHandler(e.target.value, 'start')}
 						>
 							{Array.from({ length: new Date().getFullYear() - 1999 }, (_, i) => 2000 + i).map((year) => (
 								<option key={year} value={year}>
@@ -755,12 +752,7 @@ const Filter = (props: FilterType) => {
 						<select
 							// @ts-ignore
 							value={searchFilter?.search?.yearsRange?.end}
-							onChange={(e: any) =>
-								setSearchFilter({
-									...searchFilter,
-									yearsRange: { ...searchFilter?.search?.yearsRange, end: Number(e.target.value) },
-								})
-							}
+							onChange={(e: any) => productYearsHandler(e.target.value, 'end')}
 						>
 							{Array.from({ length: new Date().getFullYear() - 1999 }, (_, i) => 2000 + i).map((year) => (
 								<option key={year} value={year}>

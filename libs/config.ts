@@ -2,7 +2,7 @@ export const REACT_APP_API_URL = `${process.env.REACT_APP_API_URL}`;
 
 export const availableOptions = ['productBarter', 'productRent'];
 
-const thisYear = new Date().getFullYear();
+export const thisYear = new Date().getFullYear()
 
 export const productYears: any = [];
 

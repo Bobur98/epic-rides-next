@@ -219,12 +219,12 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 			</div>
 		)
 	}
-};
+}
 
 ProductList.defaultProps = {
 	initialInput: {
 		page: 1,
-		limit: 9,
+		limit: 11,
 		sort: 'createdAt',
 		direction: 'DESC',
 		search: {
