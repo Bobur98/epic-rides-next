@@ -184,6 +184,15 @@ const Top = () => {
 		} else if (notification.productId) {
 			router.push(`/product/detail?id=${notification.productId}`)
 		}
+		// if (notification.productId) {
+		// 	router.push(`/community/detail?id=${notification.articleId}`)
+		// } else if (notification.articleId) {
+		// 	router.push(`/community/detail?articleCategory=${notification.articleId}`)
+		// } else if (notification.authorId) {
+		// 	router.push(`/member?memberId=${notification.authorId}`)
+		// }
+
+		console.log(notification, '++++++++++++++++++++++++++')
 
 		const updateNotification: NotificationUpdate = {
 			_id: notification._id,

@@ -95,6 +95,8 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
 		searchFilter.page = value
+		console.log(searchFilter, 'HANDLE PAGE')
+
 		await router.push(
 			`/product?input=${JSON.stringify(searchFilter)}`,
 			`/product?input=${JSON.stringify(searchFilter)}`,
@@ -224,7 +226,7 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 ProductList.defaultProps = {
 	initialInput: {
 		page: 1,
-		limit: 11,
+		limit: 5,
 		sort: 'createdAt',
 		direction: 'DESC',
 		search: {
