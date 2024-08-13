@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import { ProductLocation, ProductType, ProductBrand } from '../../enums/product.enum'
 import { Direction } from '../../enums/common.enum'
+import { sweetMixinErrorAlert } from '../../sweetAlert'
 
 const thisYear = new Date().getFullYear()
 
@@ -49,8 +50,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					},
 				}
 			})
-		} catch (error) {
-			console.log('ERROR in handleRangeChange', error)
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}, [])
 
@@ -66,8 +67,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						: [...prev.search.brandList, brand],
 				},
 			}))
-		} catch (error) {
-			console.log('ERROR in handleBrandSelection', error)
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}, [])
 
@@ -89,12 +90,10 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				`/product?input=${JSON.stringify(searchFilter)}`,
 				`/product?input=${JSON.stringify(searchFilter)}`,
 			)
-			console.log('Data to send to backend:', searchFilter)
-		} catch (error) {
-			console.log('ERROR on Advanced search', error)
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
-	console.log(searchFilter, 'searchFilter from home')
 
 	// Handle reset action
 	const handleReset = () => {
@@ -178,7 +177,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				})
 				typeStateChangeHandler()
 			} catch (err: any) {
-				console.log('ERROR, productLocationSelectHandler:', err)
+				sweetMixinErrorAlert(err.message).then()
 			}
 		},
 		[searchFilter],
@@ -196,7 +195,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				})
 				brandStateChangeHandler()
 			} catch (err: any) {
-				console.log('ERROR, productTypeSelectHandler:', err)
+				sweetMixinErrorAlert(err.message).then()
 			}
 		},
 		[searchFilter],
@@ -214,19 +213,17 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				})
 				disableAllStateHandler()
 			} catch (err: any) {
-				console.log('ERROR, productBrandSelectHandler:', err)
+				sweetMixinErrorAlert(err.message).then()
 			}
 		},
 		[searchFilter],
 	)
-	console.log(searchFilter?.search?.brandList, '+++++++++++++++++++')
 
 	if (device === 'mobile') {
 		return <div>HEADER FILTER MOBILE</div>
 	} else {
 		return (
 			<>
-				;
 				<Stack className={'search-box'}>
 					<Stack className={'select-box'}>
 						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>

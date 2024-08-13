@@ -85,7 +85,6 @@ const NoticesList: NextPage<NoticesListProps> = ({ initialInput, ...props }) => 
 		// setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page)
 	}, [router])
 	/** HANDLERS **/
-	console.log(notices, 'NOTICES')
 
 	// Styled component for NoticeType with conditional styles
 	const NoticeTypeSpan: any = styled('span', {

@@ -12,7 +12,7 @@ import CommunityArticleList from '../../../libs/components/admin/community/Commu
 import { AllBoardArticlesInquiry } from '../../../libs/types/board-article/board-article.input'
 import { BoardArticle } from '../../../libs/types/board-article/board-article'
 import { BoardArticleCategory, BoardArticleStatus } from '../../../libs/enums/board-article.enum'
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
+import { sweetConfirmAlert, sweetErrorHandling, sweetMixinErrorAlert } from '../../../libs/sweetAlert'
 import { BoardArticleUpdate } from '../../../libs/types/board-article/board-article.update'
 import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query'
 import { useMutation, useQuery } from '@apollo/client'
@@ -128,13 +128,12 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 				setCommunityInquiry({ ...communityInquiry })
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 
 	const updateArticleHandler = async (updateData: BoardArticleUpdate) => {
 		try {
-			console.log('+updateData: ', updateData)
 			await getAllPBoardArticlesRefetch({ input: communityInquiry })
 
 			menuIconCloseHandler()
@@ -158,9 +157,6 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 			sweetErrorHandling(err).then()
 		}
 	}
-
-	console.log('+communityInquiry', communityInquiry)
-	console.log('+articles', articles)
 
 	return (
 		<Box component={'div'} className={'content'}>

@@ -11,7 +11,7 @@ import { useReactiveVar } from '@apollo/client'
 import { socketVar, userVar } from '../../apollo/store'
 import { Member } from '../types/member/member'
 import { Messages, REACT_APP_API_URL } from '../config'
-import { sweetErrorAlert } from '../sweetAlert'
+import { sweetErrorAlert, sweetMixinErrorAlert } from '../sweetAlert'
 
 const NewMessage = (type: any) => {
 	if (type === 'right') {
@@ -67,7 +67,6 @@ const Chat = () => {
 	useEffect(() => {
 		socket.onmessage = (msg) => {
 			const data = JSON.parse(msg.data)
-			console.log('WebSocket message:', data)
 
 			switch (data.event) {
 				case 'info':
@@ -117,7 +116,7 @@ const Chat = () => {
 				onClickHandler()
 			}
 		} catch (err: any) {
-			console.log(err)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 

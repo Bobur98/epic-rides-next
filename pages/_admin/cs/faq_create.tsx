@@ -26,16 +26,16 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 	const currentYear = new Date().getFullYear()
 	const years = Array.from({ length: currentYear - 1999 }, (_, i) => 2000 + i)
 
-	console.log(years)
-
 	/** APOLLO REQUESTS **/
 	const [createFaq, { error: createError }] = useMutation(CREATE_FAQ_BY_ADMIN, {
 		onError: (error) => {
+
 			router.push('/_error')
 		},
 	})
 	const [updateFaq, { error: createUpdateError }] = useMutation(UPDATE_FAQ_BY_ADMIN, {
-		onError: () => {
+		onError: (error) => {
+
 			router.push('/_error')
 		},
 	})
@@ -46,13 +46,15 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 		error: getFaqError,
 		refetch: getFaqRefetch,
 	} = useQuery(GET_FAQ, {
+		skip: !router.query.faqId,
 		fetchPolicy: 'network-only',
-		variables: { input: router.query.faqId },
+		variables: { input: router?.query?.faqId },
 		onCompleted: (data: T) => {
 			setFaqs(data?.getFaqs?.list || [])
 			setTotal(data?.getFaqs?.metaCounter[0]?.total || 0)
 		},
 	})
+
 
 	if (getFaqError) {
 		router.push('/_error')
@@ -68,7 +70,6 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 		})
 	}, [getFaqLoading, getFaqData])
 
-	console.log(getFaqData?.getFaq, ' *****************')
 
 	/** HANDLERS **/
 
@@ -146,7 +147,6 @@ const AddFaq = ({ initialValues, ...props }: any) => {
 	// 	router.push('mypage')
 	// }
 
-	console.log('+insertFaqData', insertFaqData)
 
 	if (device === 'mobile') {
 		return <div>ADD NEW QUESTION MOBILE PAGE</div>

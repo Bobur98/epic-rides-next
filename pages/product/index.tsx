@@ -88,14 +88,12 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 			await getProductsRefetch({ input: initialInput })
 			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
 		searchFilter.page = value
-		console.log(searchFilter, 'HANDLE PAGE')
 
 		await router.push(
 			`/product?input=${JSON.stringify(searchFilter)}`,
@@ -134,7 +132,6 @@ const ProductList: NextPage = ({ initialInput, ...props }: any) => {
 		setSortingOpen(false)
 		setAnchorEl(null)
 	}
-	console.log(products, 'PRODUCTS')
 
 	if (device === 'mobile') {
 		return <h1>PRODUCTS MOBILE</h1>

@@ -7,12 +7,7 @@ import { getJwtToken } from '../../../libs/auth'
 import useDeviceDetect from '../../../libs/hooks/useDeviceDetect'
 import { sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
 import { NoticeStatus, NoticeType } from '../../../libs/enums/notice.enum'
-import {
-	CREATE_FAQ_BY_ADMIN,
-	CREATE_NOTICE_BY_ADMIN,
-	UPDATE_FAQ_BY_ADMIN,
-	UPDATE_NOTICE_BY_ADMIN,
-} from '../../../apollo/admin/mutation'
+import { CREATE_NOTICE_BY_ADMIN, UPDATE_NOTICE_BY_ADMIN } from '../../../apollo/admin/mutation'
 import { NoticeInput } from '../../../libs/types/notice/notice.input'
 import { useRouter } from 'next/router'
 import { T } from '../../../libs/types/common'
@@ -31,7 +26,6 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 	const currentYear = new Date().getFullYear()
 	const years = Array.from({ length: currentYear - 1999 }, (_, i) => 2000 + i)
 
-	console.log(years)
 
 	/** APOLLO REQUESTS **/
 	const [createNotice, { error: createError }] = useMutation(CREATE_NOTICE_BY_ADMIN, {
@@ -51,6 +45,7 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 		error: getNoticeError,
 		refetch: getNoticeRefetch,
 	} = useQuery(GET_NOTICE, {
+		skip: !router.query.noticeId,
 		fetchPolicy: 'network-only',
 		variables: { input: router.query.noticeId },
 		onCompleted: (data: T) => {
@@ -72,7 +67,6 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 		})
 	}, [getNoticeLoading, getNoticeData])
 
-	console.log(getNoticeData?.getNotice, ' *****************')
 
 	/** HANDLERS **/
 
@@ -150,7 +144,6 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 	// 	router.push('mypage')
 	// }
 
-	console.log('+insertNoticeData', insertNoticeData)
 
 	if (device === 'mobile') {
 		return <div>ADD NEW NOTICE PAGE</div>
@@ -161,7 +154,8 @@ const AddNotice = ({ initialValues, ...props }: any) => {
 					<Typography className="main-title">Add New Notice</Typography>
 				</Stack>
 
-				<div>s
+				<div>
+					s
 					<Stack className="config">
 						<Stack className="description-box">
 							<Stack className="config-row">

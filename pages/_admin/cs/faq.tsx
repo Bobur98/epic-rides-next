@@ -18,7 +18,7 @@ import { useRouter } from 'next/router'
 import { T } from '../../../libs/types/common'
 import { Faq, Faqs } from '../../../libs/types/faq/faq'
 import { FaqsInquiry } from '../../../libs/types/faq/faq.input'
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
+import { sweetConfirmAlert, sweetErrorHandling, sweetMixinErrorAlert } from '../../../libs/sweetAlert'
 import { DELETE_FAQ_BY_ADMIN, UPDATE_FAQ_BY_ADMIN } from '../../../apollo/admin/mutation'
 import { FaqUpdate } from '../../../libs/types/faq/faq.update'
 import { GET_FAQS } from '../../../apollo/user/query'
@@ -138,7 +138,7 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 		try {
 			setSearchText(value)
 		} catch (err: any) {
-			console.log('textHandler: ', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}, [])
 
@@ -149,7 +149,7 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 				text: searchText,
 			})
 		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 
@@ -169,13 +169,12 @@ const FaqArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 				setFaqsInquiry({ ...faqsInquiry })
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 
 	const updateFaqHandler = async (updateData: FaqUpdate) => {
 		try {
-			console.log('+updateData: ')
 			await updateFaqByAdmin({
 				variables: {
 					input: updateData,

@@ -156,7 +156,6 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 			await boardArticlesRefetch({ input: articleId })
 			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		} finally {
 			setLikeLoading(false)

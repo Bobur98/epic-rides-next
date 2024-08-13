@@ -40,7 +40,6 @@ const TopAgents = (props: TopAgentsProps) => {
 		router.push('/_error')
 	}
 	/** HANDLERS **/
-	console.log(topAgents, '-------');
 
 	if (device === 'mobile') {
 		return (

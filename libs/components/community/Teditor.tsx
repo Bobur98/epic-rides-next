@@ -11,7 +11,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import { CREATE_BOARD_ARTICLE } from '../../../apollo/user/mutation'
 import { useMutation } from '@apollo/client'
 import { Message } from '../../enums/common.enum'
-import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert'
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert'
 
 const TuiEditor = () => {
 	const editorRef = useRef<Editor>(null),
@@ -20,14 +20,12 @@ const TuiEditor = () => {
 	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE)
 
 	/** APOLLO REQUESTS **/
-  const [createBoardArticle, { loading: createLoading, error: createError }] = useMutation(CREATE_BOARD_ARTICLE, {
+	const [createBoardArticle, { loading: createLoading, error: createError }] = useMutation(CREATE_BOARD_ARTICLE, {
 		onError: (error) => {
-			console.error('GraphQL mutation error:', error)
 			// Redirect to the custom error page
 			router.push('/_error')
 		},
 		onCompleted: (data) => {
-			console.log('Mutation completed successfully:', data)
 			// Handle successful completion, e.g., show a success message or redirect
 		},
 	})
@@ -72,12 +70,11 @@ const TuiEditor = () => {
 			})
 
 			const responseImage = response.data.data.imageUploader
-			console.log('=responseImage: ', responseImage)
 			memoizedValues.articleImage = responseImage
 
 			return `${REACT_APP_API_URL}/${responseImage}`
-		} catch (err) {
-			console.log('Error, uploadImage:', err)
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 
@@ -86,7 +83,6 @@ const TuiEditor = () => {
 	}
 
 	const articleTitleHandler = (e: T) => {
-		console.log(e.target.value)
 		memoizedValues.articleTitle = e.target.value
 	}
 

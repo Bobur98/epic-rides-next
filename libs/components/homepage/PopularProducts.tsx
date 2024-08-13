@@ -65,7 +65,6 @@ const PopularProducts = (props: PopularProductsProps) => {
 			await getProductsRefetch({ input: initialInput })
 			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		}
 	}

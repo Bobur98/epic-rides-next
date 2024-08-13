@@ -23,6 +23,7 @@ import { UPDATE_NOTIFICATION } from '../../apollo/user/mutation'
 import { GET_NOTIFICATIONS } from '../../apollo/user/query'
 import { NotificationStatus } from '../enums/notification.enum'
 import { T } from '../types/common'
+import { sweetMixinErrorAlert } from '../sweetAlert'
 
 const Top = () => {
 	const device = useDeviceDetect()
@@ -82,9 +83,7 @@ const Top = () => {
 	useEffect(() => {
 		if (notificationsData?.getNotifcations?.list) {
 			setNotifications(notificationsData.getNotifcations.list)
-			notificationsData.getNotifications.list.forEach((notification: { _id: any }) => {
-				console.log('Notification_id:', notification._id) // check if id is exist
-			})
+			notificationsData.getNotifications.list.forEach((notification: { _id: any }) => {})
 		}
 	}, [notificationsData])
 
@@ -192,7 +191,6 @@ const Top = () => {
 		// 	router.push(`/member?memberId=${notification.authorId}`)
 		// }
 
-		console.log(notification, '++++++++++++++++++++++++++')
 
 		const updateNotification: NotificationUpdate = {
 			_id: notification._id,
@@ -207,7 +205,6 @@ const Top = () => {
 
 	const updateNotificationHandler = async (updateData: NotificationUpdate) => {
 		try {
-			console.log('+updateData:', updateData)
 			await updateNotification({
 				variables: {
 					input: updateData,
@@ -215,7 +212,7 @@ const Top = () => {
 			})
 			await refetchNotifications
 		} catch (err: any) {
-			console.log('Error on updateNotificationHandler', err.message)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 

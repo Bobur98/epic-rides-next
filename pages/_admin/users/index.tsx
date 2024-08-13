@@ -59,7 +59,6 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	if (getAllMembersByAdminError) {
 		router.push('/_error')
 	}
-	console.log(members, '************')
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -130,7 +129,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		try {
 			setSearchText(value)
 		} catch (err: any) {
-			console.log('textHandler: ', err.message)
+			sweetErrorHandling(err.message).then()
 		}
 	}, [])
 
@@ -144,7 +143,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 				},
 			})
 		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message)
+			sweetErrorHandling(err.message).then()
 		}
 	}
 
@@ -167,7 +166,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 				setMembersInquiry({ ...membersInquiry })
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message)
+			sweetErrorHandling(err.message).then()
 		}
 	}
 

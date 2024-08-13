@@ -35,7 +35,6 @@ const CommunityBoards = () => {
 			setNewsArticles(data?.getBoardArticles?.list)
 		},
 	})
-	console.log('article', newsArticles)
 
 	const {
 		loading: getFreeArticlesLoading,

@@ -69,7 +69,6 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 			})
 			await boardArticlesRefetch({ input: searchFilter })
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		}
 	}

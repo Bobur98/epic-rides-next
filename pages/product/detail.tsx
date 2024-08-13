@@ -191,7 +191,6 @@ const ProductDetail: NextPage = ({ initialComment, ...props }: any) => {
 			})
 			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		}
 	}

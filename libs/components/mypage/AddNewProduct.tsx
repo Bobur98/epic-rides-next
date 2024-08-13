@@ -26,7 +26,6 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 	const currentYear = new Date().getFullYear()
 	const years = Array.from({ length: currentYear - 1999 }, (_, i) => 2000 + i)
 
-	console.log(years)
 
 	/** APOLLO REQUESTS **/
 	const [createProduct, { error: createError }] = useMutation(CREATE_PRODUCT, {
@@ -122,10 +121,8 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 
 			const responseImages = response.data.data.imagesUploader
 
-			console.log('+responseImages: ', responseImages)
 			setInsertProductData({ ...insertProductData, productImages: responseImages })
 		} catch (err: any) {
-			console.log('err: ', err.message)
 			await sweetMixinErrorAlert(err.message)
 		}
 	}
@@ -205,7 +202,6 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 		router.back()
 	}
 
-	console.log('+insertProductData', insertProductData)
 
 	if (device === 'mobile') {
 		return <div>ADD NEW PRODUCT MOBILE PAGE</div>

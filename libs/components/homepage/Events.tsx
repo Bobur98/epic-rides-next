@@ -11,57 +11,57 @@ const motorcycleEventsData: EventData[] = [
 		city: 'Sturgis',
 		description:
 			'Join thousands of motorcycle enthusiasts in Sturgis, South Dakota for one of the largest and most famous motorcycle rallies in the world!',
-		imageSrc: '/img/events/STURGIS.JPG',
+		imageSrc: '/img/events/STURGIS.jpg',
 	},
 	{
 		eventTitle: 'Daytona Bike Week',
 		city: 'Daytona Beach',
 		description:
 			'Experience the thrill and excitement of Daytona Bike Week, a ten-day event with racing, concerts, and street festivals.',
-		imageSrc: '/img/events/DAYTONA_BEACH.JPG',
+		imageSrc: '/img/events/DAYTONA_BEACH.jpg',
 	},
 	{
 		eventTitle: 'Isle of Man TT',
 		city: 'Isle of Man',
 		description:
 			'Witness the world’s most dangerous and exhilarating motorcycle race on the public roads of the Isle of Man!',
-		imageSrc: '/img/events/ISLE_OF_MAN.JPG',
+		imageSrc: '/img/events/ISLE_OF_MAN.jpg',
 	},
 	{
 		eventTitle: 'Laconia Motorcycle Week',
 		city: 'Laconia',
 		description:
 			'Enjoy a week-long motorcycle rally filled with bike shows, races, and scenic rides in Laconia, New Hampshire.',
-		imageSrc: '/img/events/LACONIA.JPG',
+		imageSrc: '/img/events/LACONIA.jpg',
 	},
 	{
 		eventTitle: 'MotoGP Grand Prix',
 		city: 'Various Cities',
 		description:
 			'Catch the high-speed action of the MotoGP Grand Prix, featuring the world’s best riders competing on circuits around the globe.',
-		imageSrc: '/img/events/MOTOGP.JPG',
+		imageSrc: '/img/events/MOTOGP.jpg',
 	},
 	{
 		eventTitle: 'EICMA Motorcycle Show',
 		city: 'Milan',
 		description: 'Explore the latest in motorcycle innovation and design at the EICMA Motorcycle Show in Milan, Italy.',
-		imageSrc: '/img/events/MILAN.JPG',
+		imageSrc: '/img/events/MILAN.jpg',
 	},
 	{
 		eventTitle: 'Born Free Motorcycle Show',
 		city: 'California',
 		description:
 			'Discover custom bikes and vintage motorcycles at the Born Free Motorcycle Show in Silverado, California.',
-		imageSrc: '/img/events/CALIFORNIA.JPG',
+		imageSrc: '/img/events/CALIFORNIA.jpg',
 	},
 	{
 		eventTitle: 'Red Bull Romaniacs',
 		city: 'Sibiu',
 		description:
 			'Experience the ultimate hard enduro rally in the rugged terrain of the Carpathian Mountains in Sibiu, Romania.',
-		imageSrc: '/img/events/SIBIU.JPG',
+		imageSrc: '/img/events/SIBIU.jpg',
 	},
-];
+]
 
 interface EventData {
 	eventTitle: string;

@@ -65,7 +65,6 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 			})
 			await boardArticlesRefetch({ input: searchCommunity })
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		}
 	}

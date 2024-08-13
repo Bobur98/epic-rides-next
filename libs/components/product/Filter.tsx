@@ -19,6 +19,7 @@ import { useRouter } from 'next/router'
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { productYears, thisYear } from '../../config'
+import { sweetMixinErrorAlert } from '../../sweetAlert'
 
 const MenuProps = {
 	PaperProps: {
@@ -118,10 +119,8 @@ const Filter = (props: FilterType) => {
 				if (searchFilter?.search?.typeList?.length == 0) {
 					alert('error')
 				}
-
-				console.log('productLocationSelectHandler:', e.target.value)
 			} catch (err: any) {
-				console.log('ERROR, productLocationSelectHandler:', err)
+				sweetMixinErrorAlert(err.message).then()
 			}
 		},
 		[searchFilter],
@@ -167,10 +166,8 @@ const Filter = (props: FilterType) => {
 				if (searchFilter?.search?.typeList?.length == 0) {
 					alert('error')
 				}
-
-				console.log('productTypeSelectHandler:', e.target.value)
 			} catch (err: any) {
-				console.log('ERROR, productTypeSelectHandler:', err)
+				sweetMixinErrorAlert(err.message).then()
 			}
 		},
 		[searchFilter],
@@ -212,10 +209,8 @@ const Filter = (props: FilterType) => {
 						{ scroll: false },
 					)
 				}
-
-				console.log('productOptionSelectHandler:', e.target.value)
 			} catch (err: any) {
-				console.log('ERROR, productOptionSelectHandler:', err)
+				sweetMixinErrorAlert(err.message).then()
 			}
 		},
 		[searchFilter],
@@ -487,8 +482,8 @@ const Filter = (props: FilterType) => {
 						: [...prev.search.brandList, brand],
 				},
 			}))
-		} catch (error) {
-			console.log('ERROR in handleBrandSelection', error)
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}, [])
 	const refreshHandler = async () => {
@@ -500,11 +495,9 @@ const Filter = (props: FilterType) => {
 				{ scroll: false },
 			)
 		} catch (err: any) {
-			console.log('ERROR, refreshHandler:', err)
+			sweetMixinErrorAlert(err.message).then()
 		}
 	}
-
-	console.log(searchFilter, '********************************')
 
 	if (device === 'mobile') {
 		return <div>PRODUCTS FILTER</div>

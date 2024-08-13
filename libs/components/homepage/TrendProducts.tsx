@@ -64,12 +64,10 @@ const TrendProducts = (props: TrendProductsProps) => {
 			await getProductsRefetch({ input: initialInput })
 			await sweetTopSmallSuccessAlert('success', 800)
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message)
 			sweetMixinErrorAlert(err.message).then()
 		}
 	}
 
-	if (trendProducts) console.log('trendProducts:', trendProducts)
 	if (!trendProducts) return null
 
 	if (device === 'mobile') {

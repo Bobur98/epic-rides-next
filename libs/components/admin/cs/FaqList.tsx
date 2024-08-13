@@ -102,7 +102,6 @@ interface FaqPanelListType {
 
 export const FaqArticlesPanelList = (props: FaqPanelListType) => {
 	const { faqs, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateFaqHandler, removeFaqHandler } = props
-	console.log(faqs, 'FAQS')
 
 	return (
 		<Stack>

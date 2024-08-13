@@ -79,8 +79,6 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 		router.push('/_error')
 	}
 
-	console.log(noticesInquiry, 'GET NOTICES')
-
 	/** LIFECYCLES **/
 	useEffect(() => {
 		getNoticesRefetch({ input: noticesInquiry }).then()
@@ -133,7 +131,7 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 			}
 			menuIconCloseHandler()
 		} catch (err: any) {
-			sweetErrorHandling(err).then()
+			sweetErrorHandling(err.message).then()
 		}
 	}
 
@@ -141,7 +139,7 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 		try {
 			setSearchText(value)
 		} catch (err: any) {
-			console.log('textHandler: ', err.message)
+			sweetErrorHandling(err.message).then()
 		}
 	}, [])
 
@@ -152,7 +150,6 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 				text: searchText,
 			})
 		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message)
 			sweetErrorHandling(err).then()
 		}
 	}
@@ -177,14 +174,12 @@ const NoticeArticles: NextPage = ({ initialInquiry, ...props }: any) => {
 				setNoticesInquiry({ ...noticesInquiry })
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler:', err.message)
 			router.push('/_error')
 		}
 	}
 
 	const updateNoticeHandler = async (updateData: NoticeUpdate) => {
 		try {
-			console.log('+updateData: ')
 			await updateNoticeByAdmin({
 				variables: {
 					input: updateData,

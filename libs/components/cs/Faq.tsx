@@ -103,7 +103,6 @@ const FaqsList: NextPage<FaqsListProps> = ({ initialInput, ...props }) => {
 	const handleChange = (panel: string) => (event: SyntheticEvent, newExpanded: boolean) => {
 		setExpanded(newExpanded ? panel : false)
 	}
-	console.log(initialInput, 'INITIAL INPUT')
 
 	if (device === 'mobile') {
 		return <div>FAQ MOBILE</div>
