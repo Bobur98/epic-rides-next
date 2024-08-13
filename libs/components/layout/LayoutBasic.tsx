@@ -127,7 +127,7 @@ const withLayoutBasic = (Component: any) => {
 						<Stack
 							className={`header-basic ${authHeader && 'auth'}`}
 							style={{
-								height: '650px',
+								height: '850px',
 								backgroundImage: `url(${memoizedValues.bgImage})`,
 								backgroundSize: 'cover',
 								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',

@@ -45,6 +45,7 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 		error: getProductError,
 		refetch: getProductRefetch,
 	} = useQuery(GET_PRODUCT, {
+		skip: !router.query.productId,
 		fetchPolicy: 'network-only',
 		variables: { input: router.query.productId },
 	})
@@ -123,6 +124,8 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 
 			setInsertProductData({ ...insertProductData, productImages: responseImages })
 		} catch (err: any) {
+			console.log(err, 'ERROR')
+
 			await sweetMixinErrorAlert(err.message)
 		}
 	}
