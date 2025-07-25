@@ -98,16 +98,15 @@ const withLayoutBasic = (Component: any) => {
 						<meta name={'title'} content={`Epic Rides`} />
 					</Head>
 					<Stack id="mobile-wrap">
-						<Stack id={'top'}>
-							<Top />
-						</Stack>
-
 						<Stack id={'main'}>
 							<Component {...props} />
 						</Stack>
 
 						<Stack id={'footer'}>
 							<Footer />
+						</Stack>
+						<Stack id={'top'}>
+							<Top />
 						</Stack>
 					</Stack>
 				</>

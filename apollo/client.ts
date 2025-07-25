@@ -99,13 +99,14 @@ function createIsomorphicLink() {
 		});
 
 		const splitLink = split(
+			//  Directs subscription requests to the WebSocket link and non-subscription requests to the HTTP link.
 			({ query }) => {
-				const definition = getMainDefinition(query);
-				return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+				const definition = getMainDefinition(query)
+				return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
 			},
-			wsLink,
-			authLink.concat(link),
-		);
+			wsLink, // WebSocket for subscriptions
+			authLink.concat(link), // HTTP for other requests 
+		)
 
 		return from([errorLink, tokenRefreshLink, splitLink]);
 	}
@@ -113,11 +114,11 @@ function createIsomorphicLink() {
 
 function createApolloClient() {
 	return new ApolloClient({
-		ssrMode: typeof window === 'undefined',
-		link: createIsomorphicLink(),
-		cache: new InMemoryCache(),
+		ssrMode: typeof window === 'undefined', // Server-side mode
+		link: createIsomorphicLink(), // Use the appropriate link for HTTP or WebSocket
+		cache: new InMemoryCache(), // Caching mechanism
 		resolvers: {},
-	});
+	})
 }
 
 export function initializeApollo(initialState = null) {

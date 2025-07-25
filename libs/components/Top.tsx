@@ -24,6 +24,14 @@ import { GET_NOTIFICATIONS } from '../../apollo/user/query'
 import { NotificationStatus } from '../enums/notification.enum'
 import { T } from '../types/common'
 import { sweetMixinErrorAlert } from '../sweetAlert'
+import {
+	AiFillHome,
+	AiOutlineUser,
+	AiOutlineMessage,
+	AiOutlineAppstore,
+	AiOutlineTeam,
+	AiOutlineQuestionCircle,
+} from 'react-icons/ai'
 
 const Top = () => {
 	const device = useDeviceDetect()
@@ -191,7 +199,6 @@ const Top = () => {
 		// 	router.push(`/member?memberId=${notification.authorId}`)
 		// }
 
-
 		const updateNotification: NotificationUpdate = {
 			_id: notification._id,
 			notificationStatus: NotificationStatus.READ,
@@ -260,26 +267,44 @@ const Top = () => {
 
 	if (device == 'mobile') {
 		return (
-			<Stack className={'top'}>
-				<Link href={'/'}>
-					<div className={router.pathname === '/' ? 'active-link' : ''}>{t('Home')}</div>
+			<Stack className="top" direction="row" spacing={2}>
+				<Link href="/">
+					<div className={router.pathname === '/' ? 'active-link' : ''}>
+						<AiFillHome size={20} style={{ marginRight: 4 }} />
+						{t('Home')}
+					</div>
 				</Link>
-				<Link href={'/product'}>
-					<div className={router.pathname === '/product' ? 'active-link' : ''}>{t('Products')}</div>
+				<Link href="/product">
+					<div className={router.pathname === '/product' ? 'active-link' : ''}>
+						<AiOutlineAppstore size={20} style={{ marginRight: 4 }} />
+						{t('Products')}
+					</div>
 				</Link>
-				<Link href={'/agent'}>
-					<div className={router.pathname === '/agent' ? 'active-link' : ''}>{t('Agents')}</div>
+				<Link href="/agent">
+					<div className={router.pathname === '/agent' ? 'active-link' : ''}>
+						<AiOutlineTeam size={20} style={{ marginRight: 4 }} />
+						{t('Agents')}
+					</div>
 				</Link>
-				<Link href={'/community?articleCategory=FREE'}>
-					<div className={router.pathname === '/community' ? 'active-link' : ''}>{t('Community')}</div>
+				<Link href="/community?articleCategory=FREE">
+					<div className={router.pathname === '/community' ? 'active-link' : ''}>
+						<AiOutlineMessage size={20} style={{ marginRight: 4 }} />
+						{t('Community')}
+					</div>
 				</Link>
 				{user?._id && (
-					<Link href={'/mypage'}>
-						<div className={router.pathname === '/mypage' ? 'active-link' : ''}>{t('My Page')}</div>
+					<Link href="/mypage">
+						<div className={router.pathname === '/mypage' ? 'active-link' : ''}>
+							<AiOutlineUser size={20} style={{ marginRight: 4 }} />
+							{t('My Page')}
+						</div>
 					</Link>
 				)}
-				<Link href={'/cs'}>
-					<div className={router.pathname === '/cs' ? 'active-link' : ''}>{t('CS')}</div>
+				<Link href="/cs">
+					<div className={router.pathname === '/cs' ? 'active-link' : ''}>
+						<AiOutlineQuestionCircle size={20} style={{ marginRight: 4 }} />
+						{t('CS')}
+					</div>
 				</Link>
 			</Stack>
 		)

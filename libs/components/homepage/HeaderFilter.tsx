@@ -285,7 +285,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						})}
 					</div>
 				</Stack>
-				{/* ADVANCED FILTER MODAL */};
+				{/* ADVANCED FILTER MODAL */}
 				<Modal
 					open={openAdvancedFilter}
 					onClose={() => advancedFilterHandler(false)}

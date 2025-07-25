@@ -35,10 +35,6 @@ const withLayoutFull = (Component: any) => {
 						<meta name={'title'} content={`Epic Rides`} />
 					</Head>
 					<Stack id="mobile-wrap">
-						<Stack id={'top'}>
-							<Top />
-						</Stack>
-
 						<Stack id={'main'}>
 							<Component {...props} />
 						</Stack>
@@ -46,9 +42,12 @@ const withLayoutFull = (Component: any) => {
 						<Stack id={'footer'}>
 							<Footer />
 						</Stack>
+						<Stack id={'top'}>
+							<Top />
+						</Stack>
 					</Stack>
 				</>
-			);
+			)
 		} else {
 			return (
 				<>
